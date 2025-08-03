@@ -310,34 +310,40 @@ export default function BookingSystem() {
   const STORAGE_KEY = 'topclass_booking_data'
 
   useEffect(() => {
+    // Request user info when component mounts
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: "request-user-info" }, "*");
+      console.log("🔄 Requested user info from Wix");
+    }
+
+    // Listen for response from Wix
     const handleMessage = (event: MessageEvent) => {
-      // Optionally, validate the origin to improve security
-      // Example:
-      // if (event.origin !== "https://your-wix-site.com") return;
+      // Optional: security check
+      // if (event.origin !== "https://your-wix-domain.com") return;
 
       const { type, email, id } = event.data;
 
       if (type === "userInfo") {
         setContactData({
-           email,
-           id, 
-           firstName: contactData?.firstName || "",
-           lastName: contactData?.lastName || "", 
-           phone: contactData?.phone || "", 
-           address: contactData?.address || "", 
-           city: contactData?.city || "", 
-           state: contactData?.state || "", 
-           zipCode: contactData?.zipCode || "", 
-           specialInstructions: contactData?.specialInstructions || "", 
-           preferredContact: contactData?.preferredContact || "email", 
-           });
-        console.log("Received user info:", { email, id });
+          email: email || "",
+          id: id || "",
+          firstName: contactData?.firstName || "",
+          lastName: contactData?.lastName || "", 
+          phone: contactData?.phone || "", 
+          address: contactData?.address || "", 
+          city: contactData?.city || "", 
+          state: contactData?.state || "", 
+          zipCode: contactData?.zipCode || "", 
+          specialInstructions: contactData?.specialInstructions || "", 
+          preferredContact: contactData?.preferredContact || "email", 
+        });
+
+        console.log("✅ Received user info from Wix:", { email, id });
       }
     };
 
     window.addEventListener("message", handleMessage);
 
-    // Clean up
     return () => {
       window.removeEventListener("message", handleMessage);
     };
