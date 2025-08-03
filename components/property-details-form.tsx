@@ -459,16 +459,16 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
                     isCurrent
                       ? "border-tc-vibrant-blue bg-tc-light-vibrant-blue/10"
                       : isCompleted
-                      ? "border-green-500 bg-green-50"
+                      ? "border-tc-vibrant-blue bg-tc-light-vibrant-blue/10"
                       : isPreviousStage
-                      ? "border-green-500 bg-green-50"
+                      ? "border-tc-vibrant-blue bg-tc-light-vibrant-blue/10"
                       : isNextStage && isCurrentStageComplete
                       ? "border-tc-vibrant-blue bg-tc-light-vibrant-blue/5"
                       : isNextStage && !isCurrentStageComplete
-                      ? "border-green-500 bg-green-50"
+                      ? "border-tc-vibrant-blue bg-tc-light-vibrant-blue/10"
                       : isFutureStage
-                      ? "border-green-500 bg-green-50"
-                      : "border-green-500 bg-green-50"
+                      ? "border-tc-vibrant-blue bg-tc-light-vibrant-blue/10"
+                      : "border-tc-vibrant-blue bg-tc-light-vibrant-blue/10"
                   )}
                   onClick={() => handleSubStageClick(stage.id)}
                 >
@@ -476,48 +476,22 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
                     <div className="flex items-center justify-center mb-2">
                       <stage.icon className={cn(
                         "h-6 w-6",
-                        isCurrent ? "text-tc-vibrant-blue" : 
-                        isCompleted || isPreviousStage ? "text-green-600" : 
-                        "text-green-600"
+                        "text-tc-vibrant-blue"
                       )} />
                     </div>
                     <h3 className={cn(
                       "font-semibold text-sm mb-1",
-                      isCurrent ? "text-gray-900" :
-                      isCompleted || isPreviousStage ? "text-gray-900" :
-                      "text-gray-900"
+                     "text-gray-900"
                     )}>{stage.title}</h3>
                     <p className={cn(
                       "text-xs",
-                      isCurrent ? "text-gray-600" :
-                      isCompleted || isPreviousStage ? "text-gray-600" :
                       "text-gray-600"
                     )}>{stage.description}</p>
                     {(isCompleted || isPreviousStage || isFutureStage) && (
                       <div className="mt-2">
-                        <div className="w-4 h-4 bg-green-500 rounded-full mx-auto flex items-center justify-center">
+                        <div className="w-4 h-4 bg-tc-vibrant-blue rounded-full mx-auto flex items-center justify-center">
                           <div className="w-2 h-2 bg-white rounded-full"></div>
                         </div>
-                      </div>
-                    )}
-                    {isNextStage && isCurrentStageComplete && (
-                      <div className="mt-2">
-                        <div className="text-xs text-tc-vibrant-blue font-medium">Next Step</div>
-                      </div>
-                    )}
-                    {isNextStage && !isCurrentStageComplete && (
-                      <div className="mt-2">
-                        <div className="text-xs text-green-700 font-medium">Complete current step first</div>
-                      </div>
-                    )}
-                    {isFutureStage && (
-                      <div className="mt-2">
-                        <div className="text-xs text-green-700 font-medium">Complete previous steps first</div>
-                      </div>
-                    )}
-                    {isCurrent && !isCompleted && (
-                      <div className="mt-2">
-                        <div className="text-xs text-orange-600 font-medium">Complete required fields</div>
                       </div>
                     )}
                   </CardContent>

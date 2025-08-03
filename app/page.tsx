@@ -45,18 +45,8 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-tc-light-blue py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-[60vh] py-8 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            Welcome to TopClass Cleaning
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Choose your cleaning category to get started with our professional cleaning services
-          </p>
-        </div>
-
         {/* Category Selection */}
         <div className="grid gap-8">
           <h2 className="text-3xl font-bold text-center text-gray-800">Choose Your Cleaning Category</h2>

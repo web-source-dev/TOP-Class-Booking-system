@@ -2,15 +2,12 @@
 
 import { useState, useMemo, useEffect, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
-import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Skeleton } from "@/components/ui/skeleton"
 import { ChevronLeft, PackageIcon, PlusCircle, CalendarDays, Settings, Loader2, User, Building } from "lucide-react"
 import { PackageCard } from "@/components/package-card"
 import { AddOnToggle } from "@/components/add-on-toggle"
@@ -250,7 +247,6 @@ const addOnsData: AddOn[] = [
   { id: "trash-bin-wash", name: "Trash\nWash", price: 20 },
 ]
 
-const timeSlots = ["9:00 AM - 12:00 PM", "1:00 PM - 4:00 PM", "5:00 PM - 8:00 PM"]
 
 // Contact form data interface
 interface ContactFormData {
@@ -355,22 +351,6 @@ export default function BookingSystem() {
   }, []);
 
   const isMobile = useIsMobile()
-
-  // Check if there's saved booking data
-  const hasSavedData = useMemo(() => {
-    try {
-      const savedData = localStorage.getItem('topclass_booking_data')
-      if (savedData) {
-        const bookingData = JSON.parse(savedData)
-        const isDataFresh = Date.now() - bookingData.timestamp < 24 * 60 * 60 * 1000
-        // Don't load saved data if we have a category from URL (fresh start)
-        return isDataFresh && bookingData.currentStage !== "category" && !categoryFromUrl
-      }
-    } catch (error) {
-      console.error('Error checking saved data:', error)
-    }
-    return false
-  }, [categoryFromUrl])
 
   // LocalStorage functions
   const saveToLocalStorage = useCallback(() => {
@@ -750,11 +730,8 @@ export default function BookingSystem() {
 
         console.log('Payment request sent to Wix:', bookingData)
       }
-        alert(`Booking saved successfully!\n\nBooking ID: ${result.data.bookingId}\nTotal: $${calculateTotalPrice}\nStatus: ${result.data.status}\n\nWe will contact you soon to arrange payment.`)
-
         // Clear localStorage and reset form
         clearLocalStorage()
-        resetToCategories()
 
       } catch (error) {
         console.error('Booking submission error:', error)
@@ -807,17 +784,6 @@ export default function BookingSystem() {
   return (
     <div className="min-h-screen bg-tc-light-blue py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
-        {/* Auto-save indicator */}
-        {selectedCategory && currentStage !== "category" && (
-          <div className="mb-4 text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span>Auto-saving your progress...</span>
-            </div>
-          </div>
-        )}
-
-
 
         <div className={cn(
           "grid gap-8",
@@ -866,7 +832,7 @@ export default function BookingSystem() {
                     onClick={resetToTiers}
                     className="w-full sm:w-auto bg-transparent border-gray-300 text-gray-700 hover:bg-gray-100"
                   >
-                    <ChevronLeft className="mr-2 h-4 w-4" /> Back to {selectedCategory} Packages
+                    <ChevronLeft className="mr-2 h-4 w-4" /> Back
                   </Button>
                 </div>
 
@@ -910,7 +876,7 @@ export default function BookingSystem() {
                     onClick={resetToPropertyDetails}
                     className="w-full sm:w-auto bg-transparent border-gray-300 text-gray-700 hover:bg-gray-100"
                   >
-                    <ChevronLeft className="mr-2 h-4 w-4" /> Back to Property Details
+                    <ChevronLeft className="mr-2 h-4 w-4" /> Back
                   </Button>
                   <div className="text-center flex-grow">
                     <h2 className="text-3xl font-bold text-gray-900 mb-2">Customize Your Service</h2>
@@ -976,7 +942,7 @@ export default function BookingSystem() {
                     onClick={resetToAddOns}
                     className="w-full sm:w-auto bg-transparent border-gray-300 text-gray-700 hover:bg-gray-100"
                   >
-                    <ChevronLeft className="mr-2 h-4 w-4" /> Back to Add-Ons
+                    <ChevronLeft className="mr-2 h-4 w-4" /> Back
                   </Button>
                 </div>
 
@@ -1051,7 +1017,7 @@ export default function BookingSystem() {
                     onClick={resetToSchedule}
                     className="w-full sm:w-auto bg-transparent border-gray-300 text-gray-700 hover:bg-gray-100"
                   >
-                    <ChevronLeft className="mr-2 h-4 w-4" /> Back to Schedule
+                    <ChevronLeft className="mr-2 h-4 w-4" /> Back
                   </Button>
                 </div>
 
@@ -1093,7 +1059,7 @@ export default function BookingSystem() {
                     onClick={resetToContact}
                     className="w-full sm:w-auto bg-transparent border-gray-300 text-gray-700 hover:bg-gray-100"
                   >
-                    <ChevronLeft className="mr-2 h-4 w-4" /> Back to Contact Info
+                    <ChevronLeft className="mr-2 h-4 w-4" /> Back
                   </Button>
                   <h2 className="text-3xl font-bold text-center text-gray-800 flex-grow">Review Your Booking</h2>
                   <Button
@@ -1101,7 +1067,7 @@ export default function BookingSystem() {
                     onClick={clearLocalStorage}
                     className="w-full sm:w-auto bg-transparent border-red-300 text-red-600 hover:bg-red-50"
                   >
-                    Clear Progress
+                    Clear
                   </Button>
                 </div>
 
@@ -1350,7 +1316,7 @@ export default function BookingSystem() {
                               Saving...
                             </>
                           ) : (
-                            'Save Booking'
+                            'Book Now'
                           )}
                         </Button>
                       </div>
