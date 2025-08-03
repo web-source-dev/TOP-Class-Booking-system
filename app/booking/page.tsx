@@ -840,31 +840,6 @@ export default function BookingSystem() {
             {currentStage === "category" && (
               // Stage 1: Category Selection
               <div className="grid gap-8">
-                {hasSavedData && (
-                  <Alert className="bg-tc-light-vibrant-blue border-tc-vibrant-blue text-tc-dark-vibrant-blue">
-                    <AlertDescription className="flex items-center justify-between">
-                      <span>You have a previous booking in progress. Would you like to continue?</span>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={loadFromLocalStorage}
-                          className="border-tc-vibrant-blue text-tc-vibrant-blue hover:bg-tc-vibrant-blue hover:text-white"
-                        >
-                          Continue Previous Booking
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={clearLocalStorage}
-                          className="border-gray-300 text-gray-600 hover:bg-gray-100"
-                        >
-                          Start New Booking
-                        </Button>
-                      </div>
-                    </AlertDescription>
-                  </Alert>
-                )}
                 <h2 className="text-3xl font-bold text-center text-gray-800">Choose Your Cleaning Category</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <CategoryCard
