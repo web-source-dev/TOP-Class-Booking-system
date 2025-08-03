@@ -12,7 +12,11 @@ export const metadata: Metadata = {
   generator: 'Next.js',
   keywords: 'cleaning services, house cleaning, professional cleaning, TC Cleaning',
   authors: [{ name: 'TC Cleaning' }],
-  viewport: 'width=device-width, initial-scale=1',
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({

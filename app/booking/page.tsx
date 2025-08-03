@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect, useCallback } from "react"
+import { useState, useMemo, useEffect, useCallback, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -283,7 +283,7 @@ interface PropertyDetails {
   partnershipTier?: "tier1" | "tier2" | "tier3"
 }
 
-export default function BookingSystem() {
+function BookingSystemContent() {
   const searchParams = useSearchParams()
   const categoryFromUrl = searchParams.get('category') as "Instant Impact" | "Concierge" | "Partner" | null
   
@@ -1399,5 +1399,17 @@ export default function BookingSystem() {
         />
       )}
     </div>
+  )
+}
+
+export default function BookingSystem() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-tc-light-blue flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tc-vibrant-blue"></div>
+      </div>
+    }>
+      <BookingSystemContent />
+    </Suspense>
   )
 }
