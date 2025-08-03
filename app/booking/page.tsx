@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect, useCallback } from "react"
+import { useSearchParams } from "next/navigation"
 import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,10 +11,9 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ChevronLeft, Home, Sparkles, Handshake, PackageIcon, PlusCircle, CalendarDays, Settings, Loader2, User } from "lucide-react"
+import { ChevronLeft, PackageIcon, PlusCircle, CalendarDays, Settings, Loader2, User, Building } from "lucide-react"
 import { PackageCard } from "@/components/package-card"
 import { AddOnToggle } from "@/components/add-on-toggle"
-import { CategoryCard } from "@/components/category-card"
 import { MobileBookingSummary } from "@/components/mobile-booking-summary"
 import { ContactForm } from "@/components/contact-form"
 
@@ -288,8 +288,13 @@ interface PropertyDetails {
 }
 
 export default function BookingSystem() {
-  const [currentStage, setCurrentStage] = useState<"category" | "tiers" | "property-details" | "add-ons" | "schedule" | "contact" | "review">("category")
-  const [selectedCategory, setSelectedCategory] = useState<"Instant Impact" | "Concierge" | "Partner" | null>(null)
+  const searchParams = useSearchParams()
+  const categoryFromUrl = searchParams.get('category') as "Instant Impact" | "Concierge" | "Partner" | null
+  
+  const [currentStage, setCurrentStage] = useState<"category" | "tiers" | "property-details" | "add-ons" | "schedule" | "contact" | "review">(
+    categoryFromUrl ? "tiers" : "category"
+  )
+  const [selectedCategory, setSelectedCategory] = useState<"Instant Impact" | "Concierge" | "Partner" | null>(categoryFromUrl)
   const [selectedPackage, setSelectedPackage] = useState<CleaningPackage | null>(null)
   const [selectedAddOns, setSelectedAddOns] = useState<Set<string>>(new Set())
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
@@ -358,13 +363,14 @@ export default function BookingSystem() {
       if (savedData) {
         const bookingData = JSON.parse(savedData)
         const isDataFresh = Date.now() - bookingData.timestamp < 24 * 60 * 60 * 1000
-        return isDataFresh && bookingData.currentStage !== "category"
+        // Don't load saved data if we have a category from URL (fresh start)
+        return isDataFresh && bookingData.currentStage !== "category" && !categoryFromUrl
       }
     } catch (error) {
       console.error('Error checking saved data:', error)
     }
     return false
-  }, [])
+  }, [categoryFromUrl])
 
   // LocalStorage functions
   const saveToLocalStorage = useCallback(() => {
@@ -443,14 +449,14 @@ export default function BookingSystem() {
 
   // Save data to localStorage whenever relevant state changes
   useEffect(() => {
-    if (currentStage !== "category") {
+    // Only save if we have a selected category (not on home page)
+    if (selectedCategory && currentStage !== "category") {
       saveToLocalStorage()
     }
-  }, [saveToLocalStorage, currentStage])
+  }, [saveToLocalStorage, currentStage, selectedCategory])
 
   // Progress steps for the booking process
   const progressSteps = useMemo(() => [
-    { id: "category", title: "Category", description: "Choose service type" },
     { id: "tiers", title: "Package", description: "Select cleaning package" },
     { id: "property-details", title: "Property", description: "Property details" },
     { id: "add-ons", title: "Add-ons", description: "Customize services" },
@@ -599,10 +605,7 @@ export default function BookingSystem() {
 
 
 
-  const handleCategorySelect = (category: "Instant Impact" | "Concierge" | "Partner") => {
-    setSelectedCategory(category)
-    setCurrentStage("tiers")
-  }
+
 
   const handlePackageSelect = (pkg: CleaningPackage) => {
     setSelectedPackage(pkg)
@@ -625,21 +628,8 @@ export default function BookingSystem() {
   }
 
   const resetToCategories = () => {
-    setCurrentStage("category")
-    setSelectedCategory(null)
-    setSelectedPackage(null)
-    setSelectedAddOns(new Set())
-    setSelectedDate(undefined)
-    setSelectedTime(undefined)
-    setIsOccupied(false)
-    setLightStaging(false)
-    setScentBooster(false)
-    setFinalDayTouchUp(false)
-    setContactData(null)
-    setPropertyDetails(null)
-    setRateLimitError(null)
-    setValidationErrors([])
-    clearLocalStorage()
+    // Navigate back to home page instead of resetting to category stage
+    window.location.href = '/'
   }
 
   const resetToTiers = () => {
@@ -812,13 +802,13 @@ export default function BookingSystem() {
   const filteredPackages = selectedCategory ? packagesData.filter((pkg) => pkg.category === selectedCategory) : []
 
   // Determine if summary panel should be shown
-  const showSummaryPanel = currentStage !== "category" && currentStage !== "review" && currentStage !== "contact" && currentStage !== "property-details" && currentStage !== "tiers" && currentStage !== "schedule"
+  const showSummaryPanel = currentStage !== "review" && currentStage !== "contact" && currentStage !== "property-details" && currentStage !== "tiers" && currentStage !== "schedule"
 
   return (
     <div className="min-h-screen bg-tc-light-blue py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Auto-save indicator */}
-        {currentStage !== "category" && (
+        {selectedCategory && currentStage !== "category" && (
           <div className="mb-4 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -837,32 +827,7 @@ export default function BookingSystem() {
             "bg-white p-8 rounded-xl shadow-lg",
             showSummaryPanel ? "lg:col-span-2" : "w-full"
           )}>
-            {currentStage === "category" && (
-              // Stage 1: Category Selection
-              <div className="grid gap-8">
-                <h2 className="text-3xl font-bold text-center text-gray-800">Choose Your Cleaning Category</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <CategoryCard
-                    name="Instant Impact"
-                    description="Quick, thorough one-time cleans for immediate results."
-                    icon={Home}
-                    onSelect={() => handleCategorySelect("Instant Impact")}
-                  />
-                  <CategoryCard
-                    name="Concierge"
-                    description="Premium, white-glove service for occupied or vacated homes."
-                    icon={Sparkles}
-                    onSelect={() => handleCategorySelect("Concierge")}
-                  />
-                  <CategoryCard
-                    name="Partner"
-                    description="Exclusive ongoing partnerships for real estate professionals."
-                    icon={Handshake}
-                    onSelect={() => handleCategorySelect("Partner")}
-                  />
-                </div>
-              </div>
-            )}
+
 
             {currentStage === "tiers" && (
               // Stage 2: Tier Selection within Category
@@ -873,7 +838,7 @@ export default function BookingSystem() {
                     onClick={resetToCategories}
                     className="w-full sm:w-auto bg-transparent border-gray-300 text-gray-700 hover:bg-gray-100"
                   >
-                    <ChevronLeft className="mr-2 h-4 w-4" /> Back to Categories
+                    <ChevronLeft className="mr-2 h-4 w-4" /> Back
                   </Button>
                   <h2 className="text-3xl font-bold text-center text-gray-800 flex-grow">
                     {selectedCategory} Packages
@@ -1223,7 +1188,7 @@ export default function BookingSystem() {
                       {propertyDetails && (
                         <div className="grid gap-3">
                           <h4 className="flex items-center gap-2 font-semibold text-xl text-gray-800">
-                            <Home className="h-6 w-6 text-tc-vibrant-blue" /> Property Details
+                            <Building className="h-6 w-6 text-tc-vibrant-blue" /> Property Details
                           </h4>
                           <div className="bg-gray-50 p-4 rounded-lg grid gap-2">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
