@@ -31,33 +31,8 @@ interface AvailabilityCalendarProps {
   disabled?: boolean
 }
 
-// Mock data - in real app, this would come from an API
-const mockAvailabilityData: AvailabilityData[] = [
-  {
-    date: "2024-01-15",
-    slots: [
-      { id: "1", time: "9:00 AM - 12:00 PM", available: true, bookingCount: 2, maxBookings: 4 },
-      { id: "2", time: "1:00 PM - 4:00 PM", available: false, bookingCount: 4, maxBookings: 4 },
-      { id: "3", time: "5:00 PM - 8:00 PM", available: true, bookingCount: 1, maxBookings: 4 },
-    ]
-  },
-  {
-    date: "2024-01-16",
-    slots: [
-      { id: "4", time: "9:00 AM - 12:00 PM", available: true, bookingCount: 0, maxBookings: 4 },
-      { id: "5", time: "1:00 PM - 4:00 PM", available: true, bookingCount: 1, maxBookings: 4 },
-      { id: "6", time: "5:00 PM - 8:00 PM", available: true, bookingCount: 2, maxBookings: 4 },
-    ]
-  },
-  {
-    date: "2024-01-17",
-    slots: [
-      { id: "7", time: "9:00 AM - 12:00 PM", available: false, bookingCount: 4, maxBookings: 4 },
-      { id: "8", time: "1:00 PM - 4:00 PM", available: false, bookingCount: 4, maxBookings: 4 },
-      { id: "9", time: "5:00 PM - 8:00 PM", available: true, bookingCount: 0, maxBookings: 4 },
-    ]
-  }
-]
+// API endpoint for availability
+const API_BASE_URL = 'http://localhost:5000/api'
 
 export function AvailabilityCalendar({
   selectedDate,
@@ -71,29 +46,27 @@ export function AvailabilityCalendar({
   const [error, setError] = useState<string | null>(null)
   const [currentSlots, setCurrentSlots] = useState<TimeSlot[]>([])
 
-  // Simulate API call to fetch availability
+  // Fetch availability from API
   const fetchAvailability = async (date: Date) => {
     setIsLoading(true)
     setError(null)
     
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
       const dateString = date.toISOString().split('T')[0]
-      const data = mockAvailabilityData.find(d => d.date === dateString)
       
-      if (data) {
-        setCurrentSlots(data.slots)
-      } else {
-        // Generate default slots for dates not in mock data
-        const defaultSlots: TimeSlot[] = [
-          { id: "default1", time: "9:00 AM - 12:00 PM", available: true, bookingCount: 0, maxBookings: 4 },
-          { id: "default2", time: "1:00 PM - 4:00 PM", available: true, bookingCount: 0, maxBookings: 4 },
-          { id: "default3", time: "5:00 PM - 8:00 PM", available: true, bookingCount: 0, maxBookings: 4 },
-        ]
-        setCurrentSlots(defaultSlots)
+      const response = await fetch(`${API_BASE_URL}/bookings/availability/${dateString}`)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
+      
+      const result = await response.json()
+      
+             if (result.success && result.data) {
+         setCurrentSlots(result.data.slots)
+       } else {
+         throw new Error(result.message || 'Failed to fetch availability data')
+       }
     } catch (err) {
       setError("Failed to load availability. Please try again.")
       console.error("Availability fetch error:", err)
@@ -134,8 +107,9 @@ export function AvailabilityCalendar({
 
   const getAvailabilityStatus = (slot: TimeSlot) => {
     if (!slot.available) return "Fully Booked"
-    if (slot.bookingCount && slot.maxBookings) {
+    if (slot.bookingCount !== undefined && slot.maxBookings) {
       const remaining = slot.maxBookings - slot.bookingCount
+      if (remaining === 0) return "Fully Booked"
       if (remaining === 1) return "1 Spot Left"
       if (remaining <= 3) return `${remaining} Spots Left`
       return "Available"

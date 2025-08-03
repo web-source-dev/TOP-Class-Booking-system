@@ -22,9 +22,9 @@ import { AvailabilityCalendar } from "@/components/availability-calendar"
 import { PropertyDetailsForm } from "@/components/property-details-form"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
-import { 
-  bookingRateLimiter, 
-  formSubmissionRateLimiter, 
+import {
+  bookingRateLimiter,
+  formSubmissionRateLimiter,
   getClientIdentifier,
   sanitizeInput,
   validateEmail,
@@ -264,6 +264,7 @@ interface ContactFormData {
   zipCode: string
   specialInstructions: string
   preferredContact: "email" | "phone" | "text"
+  id?: string
 }
 
 // Property details interface
@@ -297,15 +298,149 @@ export default function BookingSystem() {
   const [lightStaging, setLightStaging] = useState(false)
   const [scentBooster, setScentBooster] = useState(false)
   const [finalDayTouchUp, setFinalDayTouchUp] = useState(false)
-  
+
   // New state for enhanced features
   const [contactData, setContactData] = useState<ContactFormData | null>(null)
   const [propertyDetails, setPropertyDetails] = useState<PropertyDetails | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [rateLimitError, setRateLimitError] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<string[]>([])
+  
+  // LocalStorage keys
+  const STORAGE_KEY = 'topclass_booking_data'
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Optionally, validate the origin to improve security
+      // Example:
+      // if (event.origin !== "https://your-wix-site.com") return;
+
+      const { type, email, id } = event.data;
+
+      if (type === "userInfo") {
+        setContactData({
+           email,
+           id, 
+           firstName: contactData?.firstName || "",
+           lastName: contactData?.lastName || "", 
+           phone: contactData?.phone || "", 
+           address: contactData?.address || "", 
+           city: contactData?.city || "", 
+           state: contactData?.state || "", 
+           zipCode: contactData?.zipCode || "", 
+           specialInstructions: contactData?.specialInstructions || "", 
+           preferredContact: contactData?.preferredContact || "email", 
+           });
+        console.log("Received user info:", { email, id });
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    // Clean up
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
 
   const isMobile = useIsMobile()
+
+  // Check if there's saved booking data
+  const hasSavedData = useMemo(() => {
+    try {
+      const savedData = localStorage.getItem('topclass_booking_data')
+      if (savedData) {
+        const bookingData = JSON.parse(savedData)
+        const isDataFresh = Date.now() - bookingData.timestamp < 24 * 60 * 60 * 1000
+        return isDataFresh && bookingData.currentStage !== "category"
+      }
+    } catch (error) {
+      console.error('Error checking saved data:', error)
+    }
+    return false
+  }, [])
+
+  // LocalStorage functions
+  const saveToLocalStorage = useCallback(() => {
+    const bookingData = {
+      currentStage,
+      selectedCategory,
+      selectedPackage,
+      selectedAddOns: Array.from(selectedAddOns),
+      selectedDate: selectedDate?.toISOString(),
+      selectedTime,
+      isOccupied,
+      lightStaging,
+      scentBooster,
+      finalDayTouchUp,
+      contactData,
+      propertyDetails,
+      timestamp: Date.now()
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(bookingData))
+  }, [
+    currentStage,
+    selectedCategory,
+    selectedPackage,
+    selectedAddOns,
+    selectedDate,
+    selectedTime,
+    isOccupied,
+    lightStaging,
+    scentBooster,
+    finalDayTouchUp,
+    contactData,
+    propertyDetails
+  ])
+
+  const loadFromLocalStorage = useCallback(() => {
+    try {
+      const savedData = localStorage.getItem(STORAGE_KEY)
+      if (savedData) {
+        const bookingData = JSON.parse(savedData)
+
+        // Check if data is less than 24 hours old
+        const isDataFresh = Date.now() - bookingData.timestamp < 24 * 60 * 60 * 1000
+
+        if (isDataFresh) {
+          setCurrentStage(bookingData.currentStage || "category")
+          setSelectedCategory(bookingData.selectedCategory || null)
+          setSelectedPackage(bookingData.selectedPackage || null)
+          setSelectedAddOns(new Set(bookingData.selectedAddOns || []))
+          setSelectedDate(bookingData.selectedDate ? new Date(bookingData.selectedDate) : undefined)
+          setSelectedTime(bookingData.selectedTime || undefined)
+          setIsOccupied(bookingData.isOccupied || false)
+          setLightStaging(bookingData.lightStaging || false)
+          setScentBooster(bookingData.scentBooster || false)
+          setFinalDayTouchUp(bookingData.finalDayTouchUp || false)
+          setContactData(bookingData.contactData || null)
+          setPropertyDetails(bookingData.propertyDetails || null)
+        } else {
+          // Clear old data
+          localStorage.removeItem(STORAGE_KEY)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading from localStorage:', error)
+      localStorage.removeItem(STORAGE_KEY)
+    }
+  }, [])
+
+  const clearLocalStorage = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY)
+  }, [])
+
+  // Load data from localStorage on component mount
+  useEffect(() => {
+    loadFromLocalStorage()
+  }, [loadFromLocalStorage])
+
+  // Save data to localStorage whenever relevant state changes
+  useEffect(() => {
+    if (currentStage !== "category") {
+      saveToLocalStorage()
+    }
+  }, [saveToLocalStorage, currentStage])
 
   // Progress steps for the booking process
   const progressSteps = useMemo(() => [
@@ -346,7 +481,7 @@ export default function BookingSystem() {
   const checkRateLimit = async (action: 'booking' | 'form') => {
     const clientId = getClientIdentifier()
     let rateLimiter
-    
+
     switch (action) {
       case 'booking':
         rateLimiter = bookingRateLimiter
@@ -355,7 +490,7 @@ export default function BookingSystem() {
         rateLimiter = formSubmissionRateLimiter
         break
     }
-    
+
     const result = await rateLimiter.checkLimit(clientId)
     if (!result.allowed) {
       setRateLimitError(`Too many requests. Please try again in ${result.retryAfter} seconds.`)
@@ -366,7 +501,7 @@ export default function BookingSystem() {
 
   const validateContactData = (data: ContactFormData): boolean => {
     const errors: string[] = []
-    
+
     // Sanitize inputs
     const sanitizedData = {
       firstName: sanitizeInput(data.firstName),
@@ -380,7 +515,7 @@ export default function BookingSystem() {
       specialInstructions: sanitizeInput(data.specialInstructions),
       preferredContact: data.preferredContact
     }
-    
+
     // Validate required fields
     if (!sanitizedData.firstName) errors.push("First name is required")
     if (!sanitizedData.lastName) errors.push("Last name is required")
@@ -402,13 +537,13 @@ export default function BookingSystem() {
     } else if (!validateZipCode(sanitizedData.zipCode)) {
       errors.push("Please enter a valid ZIP code")
     }
-    
+
     // Check for suspicious activity
     const suspiciousWarnings = detectSuspiciousActivity(sanitizedData)
     if (suspiciousWarnings.length > 0) {
       errors.push(...suspiciousWarnings)
     }
-    
+
     setValidationErrors(errors)
     return errors.length === 0
   }
@@ -416,12 +551,12 @@ export default function BookingSystem() {
   const handlePropertyDetailsSubmit = async (data: PropertyDetails) => {
     setIsLoading(true)
     setRateLimitError(null)
-    
+
     try {
       // Check rate limit
       const rateLimitOk = await checkRateLimit('form')
       if (!rateLimitOk) return
-      
+
       // Store property details
       setPropertyDetails(data)
       setCurrentStage("add-ons")
@@ -436,15 +571,15 @@ export default function BookingSystem() {
   const handleContactSubmit = async (data: ContactFormData) => {
     setIsLoading(true)
     setRateLimitError(null)
-    
+
     try {
       // Check rate limit
       const rateLimitOk = await checkRateLimit('form')
       if (!rateLimitOk) return
-      
+
       // Validate data
       if (!validateContactData(data)) return
-      
+
       // Store contact data
       setContactData(data)
       setCurrentStage("review")
@@ -498,6 +633,7 @@ export default function BookingSystem() {
     setPropertyDetails(null)
     setRateLimitError(null)
     setValidationErrors([])
+    clearLocalStorage()
   }
 
   const resetToTiers = () => {
@@ -555,15 +691,15 @@ export default function BookingSystem() {
     setValidationErrors([])
   }
 
-  // Payment handling functions
-  const handlePayment = useCallback(async (paymentType: 'full' | 'deposit') => {
+  // Booking submission function
+  const handleBookingSubmit = useCallback(async (paymentType: 'full' | 'deposit') => {
     setIsLoading(true)
     setRateLimitError(null)
-    
+
     try {
       // Validate that we have all required data
       if (!selectedPackage || !contactData || !propertyDetails) {
-        throw new Error("Please complete all booking steps before proceeding to payment")
+        throw new Error("Please complete all booking steps before proceeding")
       }
 
       // Calculate add-ons total
@@ -590,6 +726,24 @@ export default function BookingSystem() {
         bookingId: `booking_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       }
 
+      // Send booking data to backend API
+      const response = await fetch('http://localhost:5000/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData)
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to save booking')
+      }
+
+      // Success - show confirmation
+      console.log('Booking saved successfully:', result)
+
       // Send message to Wix page to start payment
       if (window.parent && window.parent !== window) {
         // If embedded in Wix, send message to parent
@@ -597,64 +751,46 @@ export default function BookingSystem() {
           type: "start-payment",
           payload: bookingData
         }, '*')
-        
+
         console.log('Payment request sent to Wix:', bookingData)
-      } else {
-        // If not embedded, you can implement direct API call here
-        console.log('Not embedded in Wix, implement direct API call')
-        console.log('Booking data:', bookingData)
-        
-        // For testing purposes, you can show the data
-        alert(`Payment request sent!\n\nTotal: $${calculateTotalPrice}\nPayment Type: ${paymentType}\n\nCheck console for full booking data.`)
       }
+        alert(`Booking saved successfully!\n\nBooking ID: ${result.data.bookingId}\nTotal: $${calculateTotalPrice}\nStatus: ${result.data.status}\n\nWe will contact you soon to arrange payment.`)
 
-    } catch (error) {
-      console.error('Payment error:', error)
-      setRateLimitError((error as Error).message || 'Payment processing failed. Please try again.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [
-    selectedPackage,
-    contactData,
-    propertyDetails,
-    selectedAddOns,
-    selectedDate,
-    selectedTime,
-    isOccupied,
-    lightStaging,
-    scentBooster,
-    finalDayTouchUp,
-    calculateTotalPrice,
-    addOnsData
-  ])
+        // Clear localStorage and reset form
+        clearLocalStorage()
+        resetToCategories()
 
-  // Listen for messages from Wix
+      } catch (error) {
+        console.error('Booking submission error:', error)
+        setRateLimitError((error as Error).message || 'Failed to save booking. Please try again.')
+      } finally {
+        setIsLoading(false)
+      }
+    }, [
+      selectedPackage,
+      contactData,
+      propertyDetails,
+      selectedAddOns,
+      selectedDate,
+      selectedTime,
+      isOccupied,
+      lightStaging,
+      scentBooster,
+      finalDayTouchUp,
+      calculateTotalPrice,
+      addOnsData
+    ])
+
+  // Listen for messages from Wix (if needed for future integrations)
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       const data = event.data
-      
-      if (data?.type === "payment-success") {
-        // Payment successful
-        console.log('Payment successful:', data)
-        setRateLimitError(null)
-        // You can show success message or redirect
-        alert('Payment successful! Your booking has been confirmed.')
-        
-      } else if (data?.type === "payment-failed") {
-        // Payment failed
-        setRateLimitError(data.error || 'Payment failed. Please try again.')
-        
-      } else if (data?.type === "payment-cancelled") {
-        // Payment cancelled
-        console.log('Payment cancelled')
-        setRateLimitError('Payment was cancelled.')
-        
-      } else if (data?.type === "booking-saved") {
+
+      if (data?.type === "booking-saved") {
         // Booking saved successfully
         console.log('Booking saved:', data)
         setRateLimitError(null)
-        
+
       } else if (data?.type === "booking-error") {
         // Booking save error
         setRateLimitError(data.error || 'Failed to save booking')
@@ -675,6 +811,15 @@ export default function BookingSystem() {
   return (
     <div className="min-h-screen bg-tc-light-blue py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
+        {/* Auto-save indicator */}
+        {currentStage !== "category" && (
+          <div className="mb-4 text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span>Auto-saving your progress...</span>
+            </div>
+          </div>
+        )}
 
 
 
@@ -689,6 +834,31 @@ export default function BookingSystem() {
             {currentStage === "category" && (
               // Stage 1: Category Selection
               <div className="grid gap-8">
+                {hasSavedData && (
+                  <Alert className="bg-tc-light-vibrant-blue border-tc-vibrant-blue text-tc-dark-vibrant-blue">
+                    <AlertDescription className="flex items-center justify-between">
+                      <span>You have a previous booking in progress. Would you like to continue?</span>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={loadFromLocalStorage}
+                          className="border-tc-vibrant-blue text-tc-vibrant-blue hover:bg-tc-vibrant-blue hover:text-white"
+                        >
+                          Continue Previous Booking
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={clearLocalStorage}
+                          className="border-gray-300 text-gray-600 hover:bg-gray-100"
+                        >
+                          Start New Booking
+                        </Button>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                )}
                 <h2 className="text-3xl font-bold text-center text-gray-800">Choose Your Cleaning Category</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <CategoryCard
@@ -865,7 +1035,7 @@ export default function BookingSystem() {
                 </div>
 
                 <section id="schedule-section">
-                  
+
                   {/* Real-time Availability Calendar */}
                   <AvailabilityCalendar
                     selectedDate={selectedDate}
@@ -912,7 +1082,7 @@ export default function BookingSystem() {
                       </div>
                     </CardContent>
                   </Card>
-                  
+
                   <div className="flex justify-end mt-8">
                     <Button
                       onClick={() => setCurrentStage("contact")}
@@ -980,6 +1150,13 @@ export default function BookingSystem() {
                     <ChevronLeft className="mr-2 h-4 w-4" /> Back to Contact Info
                   </Button>
                   <h2 className="text-3xl font-bold text-center text-gray-800 flex-grow">Review Your Booking</h2>
+                  <Button
+                    variant="outline"
+                    onClick={clearLocalStorage}
+                    className="w-full sm:w-auto bg-transparent border-red-300 text-red-600 hover:bg-red-50"
+                  >
+                    Clear Progress
+                  </Button>
                 </div>
 
                 <section id="review-section">
@@ -1116,9 +1293,9 @@ export default function BookingSystem() {
                                 </p>
                                 <p><span className="font-medium">Lifestyle:</span>{" "}
                                   <span className="text-gray-700">
-                                    {propertyDetails.pets && propertyDetails.children ? "Pets & Children" : 
-                                     propertyDetails.pets ? "Pets" : 
-                                     propertyDetails.children ? "Children" : "None"}
+                                    {propertyDetails.pets && propertyDetails.children ? "Pets & Children" :
+                                      propertyDetails.pets ? "Pets" :
+                                        propertyDetails.children ? "Children" : "None"}
                                   </span>
                                 </p>
                               </div>
@@ -1216,18 +1393,18 @@ export default function BookingSystem() {
                         Total: ${calculateTotalPrice}
                       </div>
                       <div className="flex justify-end w-full">
-                        <Button 
+                        <Button
                           className="py-3 px-8 text-lg bg-tc-vibrant-blue hover:bg-tc-dark-vibrant-blue"
-                          onClick={() => handlePayment('full')}
+                          onClick={() => handleBookingSubmit('full')}
                           disabled={isLoading}
                         >
                           {isLoading ? (
                             <>
                               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                              Processing...
+                              Saving...
                             </>
                           ) : (
-                            'Pay Now'
+                            'Save Booking'
                           )}
                         </Button>
                       </div>
