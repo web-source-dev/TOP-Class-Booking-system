@@ -47,7 +47,7 @@ export default function HomePage() {
   };
   
   return (
-    <div className="min-h-[60vh] py-8 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
+    <div className="min-h-[60vh] bg-tc-light-blue py-8 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
       <div className="max-w-6xl mx-auto">
         {/* Category Selection */}
         <div className="grid gap-8">
