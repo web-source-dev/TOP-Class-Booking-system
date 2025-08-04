@@ -322,7 +322,7 @@ function BookingSystemContent() {
       // Optional: security check
       // if (event.origin !== "https://your-wix-domain.com") return;
 
-      const { type, email, id } = event.data;
+      const { type, email, id,categoryparam } = event.data;
 
       if (type === "userInfo") {
         setContactData({
@@ -338,7 +338,7 @@ function BookingSystemContent() {
           specialInstructions: contactData?.specialInstructions || "", 
           preferredContact: contactData?.preferredContact || "email", 
         });
-
+        setSelectedCategory(categoryparam || null)
         console.log("✅ Received user info from Wix:", { email, id });
       }
     };

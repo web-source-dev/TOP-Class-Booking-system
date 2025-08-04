@@ -39,11 +39,14 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState<string | null>(null)
 
   const handleCategorySelect = (category: string) => {
-    setIsLoading(category)
-    // Navigate to booking page with the selected category
-    router.push(`/booking?category=${encodeURIComponent(category)}`)
-  }
-
+    const encodedCategory = encodeURIComponent(category);
+    const targetUrl = `https://www.topclassclean.com/book-now?category=${encodedCategory}`;
+  
+    if (typeof window !== "undefined") {
+      window.parent.location.href = targetUrl;
+    }
+  };
+  
   return (
     <div className="min-h-[60vh] py-8 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
       <div className="max-w-6xl mx-auto">
