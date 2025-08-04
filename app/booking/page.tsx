@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useMemo, useEffect, useCallback, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -35,7 +34,7 @@ interface CleaningPackage {
   id: string
   name: string
   tier: "Basic" | "Concierge" | "Partner"
-  category: "Instant Impact" | "Concierge" | "Partner"
+  category: "Instant" | "Concierge" | "Partner"
   description: string
   whoFor: string
   timeEstimate: string
@@ -55,7 +54,7 @@ const packagesData: CleaningPackage[] = [
     id: "instant-impact-refresh",
     name: "Instant Impact Refresh",
     tier: "Basic",
-    category: "Instant Impact",
+    category: "Instant",
     description:
       "A quick but thorough one-time clean to give your home or listing that fresh, welcoming feel. Perfect for light tidy-ups, unexpected guest visits, or before a photo shoot.",
     whoFor: "Busy homeowners, tenants moving out, or agents with a small listing needing fast shine.",
@@ -68,7 +67,7 @@ const packagesData: CleaningPackage[] = [
     id: "instant-impact-final-touch",
     name: "Instant Impact Final Touch",
     tier: "Basic",
-    category: "Instant Impact",
+    category: "Instant",
     description:
       "A detailed spot-clean focusing on your home’s or listing’s most important areas — kitchens, bathrooms, floors, and high-touch spots. A great last pass before an open house or move-in.",
     whoFor: "Realtors needing show-ready polish or owners prepping for handover.",
@@ -87,7 +86,7 @@ const packagesData: CleaningPackage[] = [
     id: "instant-impact-ready-clean",
     name: "Instant Impact Ready Clean",
     tier: "Basic",
-    category: "Instant Impact",
+    category: "Instant",
     description:
       "A full one-time deep clean covering all main rooms, appliances, baseboards, plus final detail work. Ideal for pre-move-in/move-out or a big “reset” for your home.",
     whoFor: "Renters, sellers, new homeowners — or anyone wanting the full “just-moved-in” fresh start.",
@@ -106,7 +105,7 @@ const packagesData: CleaningPackage[] = [
     id: "instant-impact-showcase",
     name: "Instant Impact Showcase",
     tier: "Basic",
-    category: "Instant Impact",
+    category: "Instant",
     description:
       "Our premium one-off clean for high-value listings or special showings. Includes full interior detail, high-touch disinfection, light staging help (straightening décor, final touches), and a signature scent if requested.",
     whoFor: "Luxury agents, homeowners selling premium properties, or Airbnb hosts wanting a guest-ready feel.",
@@ -284,13 +283,10 @@ interface PropertyDetails {
 }
 
 function BookingSystemContent() {
-  const searchParams = useSearchParams()
-  const categoryFromUrl = searchParams.get('category') as "Instant Impact" | "Concierge" | "Partner" | null
-  
   const [currentStage, setCurrentStage] = useState<"category" | "tiers" | "property-details" | "add-ons" | "schedule" | "contact" | "review">(
-    categoryFromUrl ? "tiers" : "category"
+    "category"
   )
-  const [selectedCategory, setSelectedCategory] = useState<"Instant Impact" | "Concierge" | "Partner" | null>(categoryFromUrl)
+  const [selectedCategory, setSelectedCategory] = useState<"Instant" | "Concierge" | "Partner" | null>(null)
   const [selectedPackage, setSelectedPackage] = useState<CleaningPackage | null>(null)
   const [selectedAddOns, setSelectedAddOns] = useState<Set<string>>(new Set())
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
@@ -338,8 +334,8 @@ function BookingSystemContent() {
           specialInstructions: contactData?.specialInstructions || "", 
           preferredContact: contactData?.preferredContact || "email", 
         });
-        setSelectedCategory(categoryparam || null)
-        console.log("✅ Received user info from Wix:", { email, id });
+        setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" )
+        console.log("✅ Received user info from Wix:", { email, id ,categoryparam});
       }
     };
 

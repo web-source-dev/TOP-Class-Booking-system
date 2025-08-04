@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Home, Sparkles, Handshake } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -55,10 +54,10 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold text-center text-gray-800">Choose Your Cleaning Category</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <CategoryCard
-              name="Instant Impact"
+              name="Instant"
               description="Quick, thorough one-time cleans for immediate results."
               icon={Home}
-              onSelect={() => handleCategorySelect("Instant Impact")}
+              onSelect={() => handleCategorySelect("Instant")}
             />
             <CategoryCard
               name="Concierge"
