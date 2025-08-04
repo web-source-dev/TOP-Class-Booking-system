@@ -609,7 +609,7 @@ function BookingSystemContent() {
 
   const resetToCategories = () => {
     // Navigate back to home page instead of resetting to category stage
-    window.location.href = '/'
+    window.parent.location.href = 'https://www.topclassclean.com/'
   }
 
   const resetToTiers = () => {
