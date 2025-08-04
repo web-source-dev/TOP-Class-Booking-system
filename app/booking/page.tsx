@@ -335,6 +335,10 @@ function BookingSystemContent() {
           preferredContact: contactData?.preferredContact || "email", 
         });
         setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" )
+        // Move to tiers stage when category is received from Wix
+        if (categoryparam) {
+          setCurrentStage("tiers")
+        }
         console.log("✅ Received user info from Wix:", { email, id ,categoryparam});
       }
     };
