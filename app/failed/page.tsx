@@ -7,7 +7,7 @@ import Link from "next/link"
 
 export default function FailedPage() {
   return (
-    <div className="min-h-screen bg-tc-light-blue py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-tc-light-blue py-12 px-3 sm:px-4 lg:px-8">
       <div className="max-w-2xl mx-auto">
         <Card className="shadow-xl border-0">
           <CardHeader className="text-center pb-8 pt-12">
@@ -24,7 +24,7 @@ export default function FailedPage() {
             </CardDescription>
           </CardHeader>
           
-          <CardContent className="px-12 pb-12">
+          <CardContent className="px-4 pb-12">
             <div className="space-y-6">
               {/* Error Message */}
               <div className="bg-red-50 border border-red-200 rounded-lg p-6">
