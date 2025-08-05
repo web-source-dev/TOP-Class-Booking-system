@@ -1044,6 +1044,8 @@ function BookingSystemContent() {
                 <ContactForm
                   onSubmit={handleContactSubmit}
                   isLoading={isLoading}
+                  initialData={contactData || undefined}
+                  isEmailFromWix={!!contactData?.email}
                 />
               </div>
             )}

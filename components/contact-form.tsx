@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,24 +27,36 @@ interface ContactFormData {
 interface ContactFormProps {
   onSubmit: (data: ContactFormData) => Promise<void>
   isLoading?: boolean
+  initialData?: Partial<ContactFormData>
+  isEmailFromWix?: boolean
 }
 
-export function ContactForm({ onSubmit, isLoading = false }: ContactFormProps) {
+export function ContactForm({ onSubmit, isLoading = false, initialData, isEmailFromWix = false }: ContactFormProps) {
   const [formData, setFormData] = useState<ContactFormData>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    specialInstructions: "",
-    preferredContact: "email",
+    firstName: initialData?.firstName || "",
+    lastName: initialData?.lastName || "",
+    email: initialData?.email || "",
+    phone: initialData?.phone || "",
+    address: initialData?.address || "",
+    city: initialData?.city || "",
+    state: initialData?.state || "",
+    zipCode: initialData?.zipCode || "",
+    specialInstructions: initialData?.specialInstructions || "",
+    preferredContact: initialData?.preferredContact || "email",
   })
 
   const [errors, setErrors] = useState<Partial<ContactFormData>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Update form data when initialData changes (e.g., when Wix message arrives)
+  useEffect(() => {
+    if (initialData) {
+      setFormData(prev => ({
+        ...prev,
+        ...initialData
+      }))
+    }
+  }, [initialData])
 
   const validateForm = (): boolean => {
     const newErrors: Partial<ContactFormData> = {}
@@ -199,10 +211,14 @@ export function ContactForm({ onSubmit, isLoading = false }: ContactFormProps) {
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className={cn(errors.email && "border-red-500 focus:border-red-500")}
+                    className={cn(
+                      errors.email && "border-red-500 focus:border-red-500",
+                      isEmailFromWix && formData.email && "bg-green-50 border-green-200"
+                    )}
                     aria-describedby={errors.email ? "email-error" : undefined}
                     aria-required="true"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || (isEmailFromWix && !!formData.email)}
+                    readOnly={isEmailFromWix && !!formData.email}
                   />
                   {errors.email && (
                     <Alert variant="destructive" className="py-1">
