@@ -246,6 +246,14 @@ const addOnsData: AddOn[] = [
   { id: "trash-bin-wash", name: "Trash\nWash", price: 20 },
 ]
 
+// Additional service pricing
+const additionalServicePricing = {
+  occupiedHome: 89,
+  lightStaging: 139,
+  scentBooster: 35,
+  finalDayTouchUp: 79,
+}
+
 
 // Contact form data interface
 interface ContactFormData {
@@ -460,14 +468,31 @@ function BookingSystemContent() {
 
   const calculateTotalPrice = useMemo(() => {
     let total = selectedPackage ? selectedPackage.minPrice : 0
+    
+    // Add regular add-ons
     selectedAddOns.forEach((addOnId) => {
       const addOn = addOnsData.find((a) => a.id === addOnId)
       if (addOn) {
         total += addOn.price
       }
     })
+    
+    // Add additional services pricing
+    if (isOccupied) {
+      total += additionalServicePricing.occupiedHome
+    }
+    if (lightStaging) {
+      total += additionalServicePricing.lightStaging
+    }
+    if (scentBooster) {
+      total += additionalServicePricing.scentBooster
+    }
+    if (finalDayTouchUp) {
+      total += additionalServicePricing.finalDayTouchUp
+    }
+    
     return total
-  }, [selectedPackage, selectedAddOns])
+  }, [selectedPackage, selectedAddOns, isOccupied, lightStaging, scentBooster, finalDayTouchUp])
 
   // Rate limiting and validation functions
   const checkRateLimit = async (action: 'booking' | 'form') => {
@@ -961,36 +986,60 @@ function BookingSystemContent() {
                   <Card className="shadow-sm mt-6">
                     <CardHeader>
                       <CardTitle>Additional Preferences</CardTitle>
-                      <CardDescription>Tailor your cleaning experience.</CardDescription>
+                      <CardDescription>Tailor your cleaning experience with these premium services.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-4">
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="occupied-toggle">Occupied Home</Label>
-                        <Switch id="occupied-toggle" checked={isOccupied} onCheckedChange={setIsOccupied} />
+                        <div className="flex flex-col">
+                          <Label htmlFor="occupied-toggle">Occupied Home Surcharge</Label>
+                          <span className="text-sm text-gray-500">Additional fee for occupied properties</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-tc-vibrant-blue font-semibold">${additionalServicePricing.occupiedHome}</span>
+                          <Switch id="occupied-toggle" checked={isOccupied} onCheckedChange={setIsOccupied} />
+                        </div>
                       </div>
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="light-staging-toggle">Light Staging</Label>
-                        <Switch
-                          id="light-staging-toggle"
-                          checked={lightStaging}
-                          onCheckedChange={setLightStaging}
-                        />
+                        <div className="flex flex-col">
+                          <Label htmlFor="light-staging-toggle">Light Staging</Label>
+                          <span className="text-sm text-gray-500">Basic arrangement and presentation</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-tc-vibrant-blue font-semibold">${additionalServicePricing.lightStaging}</span>
+                          <Switch
+                            id="light-staging-toggle"
+                            checked={lightStaging}
+                            onCheckedChange={setLightStaging}
+                          />
+                        </div>
                       </div>
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="scent-booster-toggle">Scent Booster</Label>
-                        <Switch
-                          id="scent-booster-toggle"
-                          checked={scentBooster}
-                          onCheckedChange={setScentBooster}
-                        />
+                        <div className="flex flex-col">
+                          <Label htmlFor="scent-booster-toggle">Scent Booster</Label>
+                          <span className="text-sm text-gray-500">Professional fragrance enhancement</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-tc-vibrant-blue font-semibold">${additionalServicePricing.scentBooster}</span>
+                          <Switch
+                            id="scent-booster-toggle"
+                            checked={scentBooster}
+                            onCheckedChange={setScentBooster}
+                          />
+                        </div>
                       </div>
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="final-day-touch-up-toggle">Final-Day Touch-Up</Label>
-                        <Switch
-                          id="final-day-touch-up-toggle"
-                          checked={finalDayTouchUp}
-                          onCheckedChange={setFinalDayTouchUp}
-                        />
+                        <div className="flex flex-col">
+                          <Label htmlFor="final-day-touch-up-toggle">Final-Day Touch-Up</Label>
+                          <span className="text-sm text-gray-500">Last-minute polish before showing</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-tc-vibrant-blue font-semibold">${additionalServicePricing.finalDayTouchUp}</span>
+                          <Switch
+                            id="final-day-touch-up-toggle"
+                            checked={finalDayTouchUp}
+                            onCheckedChange={setFinalDayTouchUp}
+                          />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -1278,28 +1327,40 @@ function BookingSystemContent() {
                       {/* Preferences Summary */}
                       <div className="grid gap-3">
                         <h4 className="flex items-center gap-2 font-semibold text-xl text-gray-800">
-                          <Settings className="h-6 w-6 text-tc-vibrant-blue" /> Additional Preferences
+                          <Settings className="h-6 w-6 text-tc-vibrant-blue" /> Additional Services
                         </h4>
-                        <ul className="bg-gray-50 p-4 rounded-lg grid gap-2">
-                          <li>
-                            <span className="font-medium">Occupied Home:</span>{" "}
-                            <span className="text-gray-700">
-                              {selectedPackage?.tier === "Concierge" ? "N/A" : isOccupied ? "Yes" : "No"}
-                            </span>
-                          </li>
-                          <li>
-                            <span className="font-medium">Light Staging:</span>{" "}
-                            <span className="text-gray-700">{lightStaging ? "Yes" : "No"}</span>
-                          </li>
-                          <li>
-                            <span className="font-medium">Scent Booster:</span>{" "}
-                            <span className="text-gray-700">{scentBooster ? "Yes" : "No"}</span>
-                          </li>
-                          <li>
-                            <span className="font-medium">Final-Day Touch-Up:</span>{" "}
-                            <span className="text-gray-700">{finalDayTouchUp ? "Yes" : "No"}</span>
-                          </li>
-                        </ul>
+                        <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                          {(isOccupied || lightStaging || scentBooster || finalDayTouchUp) ? (
+                            <>
+                              {isOccupied && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-700">Occupied Home Surcharge</span>
+                                  <span className="font-medium text-gray-800">${additionalServicePricing.occupiedHome}</span>
+                                </div>
+                              )}
+                              {lightStaging && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-700">Light Staging</span>
+                                  <span className="font-medium text-gray-800">${additionalServicePricing.lightStaging}</span>
+                                </div>
+                              )}
+                              {scentBooster && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-700">Scent Booster</span>
+                                  <span className="font-medium text-gray-800">${additionalServicePricing.scentBooster}</span>
+                                </div>
+                              )}
+                              {finalDayTouchUp && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-700">Final-Day Touch-Up</span>
+                                  <span className="font-medium text-gray-800">${additionalServicePricing.finalDayTouchUp}</span>
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <p className="text-muted-foreground">No additional services selected.</p>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                     <CardFooter className="flex flex-col sm:flex-row justify-between items-center border-t pt-6 pb-6 px-6 gap-6 bg-tc-light-vibrant-blue rounded-b-xl">
@@ -1383,6 +1444,7 @@ function BookingSystemContent() {
               </Card>
             </div>
           )}
+          
         </div>
       </div>
       {/* Mobile Booking Summary Banner */}
@@ -1394,10 +1456,11 @@ function BookingSystemContent() {
           selectedTime={selectedTime}
           calculateTotalPrice={calculateTotalPrice}
           addOnsData={addOnsData}
-          isOccupied={false}
-          lightStaging={false}
-          scentBooster={false}
-          finalDayTouchUp={false}
+          isOccupied={isOccupied}
+          lightStaging={lightStaging}
+          scentBooster={scentBooster}
+          finalDayTouchUp={finalDayTouchUp}
+          additionalServicePricing={additionalServicePricing}
         />
       )}
     </div>

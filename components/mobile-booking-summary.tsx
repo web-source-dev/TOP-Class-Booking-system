@@ -32,6 +32,12 @@ interface MobileBookingSummaryProps {
   lightStaging: boolean
   scentBooster: boolean
   finalDayTouchUp: boolean
+  additionalServicePricing?: {
+    occupiedHome: number
+    lightStaging: number
+    scentBooster: number
+    finalDayTouchUp: number
+  }
 }
 
 export function MobileBookingSummary({
@@ -45,6 +51,12 @@ export function MobileBookingSummary({
   lightStaging,
   scentBooster,
   finalDayTouchUp,
+  additionalServicePricing = {
+    occupiedHome: 89,
+    lightStaging: 139,
+    scentBooster: 35,
+    finalDayTouchUp: 79,
+  },
 }: MobileBookingSummaryProps) {
   const [open, setOpen] = useState(false)
 
@@ -145,31 +157,43 @@ export function MobileBookingSummary({
               </div>
             </div>
 
-            {/* Preferences Summary */}
+            {/* Additional Services Summary */}
             <div className="grid gap-2">
               <h4 className="flex items-center gap-2 font-semibold text-lg text-gray-800">
-                <Settings className="h-5 w-5 text-tc-vibrant-blue" /> Additional Preferences
+                <Settings className="h-5 w-5 text-tc-vibrant-blue" /> Additional Services
               </h4>
-              <ul className="bg-gray-50 p-3 rounded-lg grid gap-1 text-sm">
-                <li>
-                  <span className="font-medium">Occupied Home:</span>{" "}
-                  <span className="text-gray-700">
-                    {selectedPackage?.tier === "Concierge" ? "N/A" : isOccupied ? "Yes" : "No"}
-                  </span>
-                </li>
-                <li>
-                  <span className="font-medium">Light Staging:</span>{" "}
-                  <span className="text-gray-700">{lightStaging ? "Yes" : "No"}</span>
-                </li>
-                <li>
-                  <span className="font-medium">Scent Booster:</span>{" "}
-                  <span className="text-gray-700">{scentBooster ? "Yes" : "No"}</span>
-                </li>
-                <li>
-                  <span className="font-medium">Final-Day Touch-Up:</span>{" "}
-                  <span className="text-gray-700">{finalDayTouchUp ? "Yes" : "No"}</span>
-                </li>
-              </ul>
+              <div className="bg-gray-50 p-3 rounded-lg space-y-2 text-sm">
+                {(isOccupied || lightStaging || scentBooster || finalDayTouchUp) ? (
+                  <>
+                    {isOccupied && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Occupied Home Surcharge</span>
+                        <span className="font-medium text-gray-800">${additionalServicePricing.occupiedHome}</span>
+                      </div>
+                    )}
+                    {lightStaging && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Light Staging</span>
+                        <span className="font-medium text-gray-800">${additionalServicePricing.lightStaging}</span>
+                      </div>
+                    )}
+                    {scentBooster && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Scent Booster</span>
+                        <span className="font-medium text-gray-800">${additionalServicePricing.scentBooster}</span>
+                      </div>
+                    )}
+                    {finalDayTouchUp && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Final-Day Touch-Up</span>
+                        <span className="font-medium text-gray-800">${additionalServicePricing.finalDayTouchUp}</span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-muted-foreground">No additional services selected.</p>
+                )}
+              </div>
             </div>
           </CardContent>
           <CardFooter className="border-t pt-4 pb-4 px-6 bg-tc-light-vibrant-blue flex justify-between items-center">
