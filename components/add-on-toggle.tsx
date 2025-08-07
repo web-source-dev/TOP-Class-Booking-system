@@ -41,6 +41,6 @@ export function AddOnToggle({ addOn, isSelected, onToggle }: AddOnToggleProps) {
           <span className="text-sm font-bold text-tc-vibrant-blue">${addOn.price}</span>
         </div>
       </div>
-    </Button>
+    </Button> 
   )
 }
