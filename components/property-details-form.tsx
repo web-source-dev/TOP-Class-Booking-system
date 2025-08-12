@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, Home, Bed, Bath, Minus, Plus, Square, AlertTriangle, Users, PawPrint, Sparkles, Handshake, PackageIcon, ChevronLeft, ChevronRight, Settings, Info } from "lucide-react"
+import { Loader2, Home, Bed, Bath, Minus, Plus, Square, AlertTriangle, Users, PawPrint, Sparkles, Handshake, PackageIcon, ChevronLeft, ChevronRight, Settings, Info, Truck } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface PropertyDetails {
@@ -28,6 +28,11 @@ interface PropertyDetails {
   urgency?: "standard" | "rush" | "same-day"
   stagingLevel?: "none" | "light" | "full"
   partnershipTier?: "tier1" | "tier2" | "tier3"
+  // Move-In/Out specific fields
+  moveType?: "move-in" | "move-out" | "both"
+  securityDeposit?: boolean
+  propertyManager?: boolean
+  walkthroughRequired?: boolean
 }
 
 interface PropertyDetailsErrors {
@@ -46,6 +51,10 @@ interface PropertyDetailsErrors {
   urgency?: string
   stagingLevel?: string
   partnershipTier?: string
+  moveType?: string
+  securityDeposit?: string
+  propertyManager?: string
+  walkthroughRequired?: string
 }
 
 interface PropertyDetailsFormProps {
@@ -115,9 +124,28 @@ const partnerSpecialAreas = [
   "Attic",
   "Outdoor areas",
   "Staging areas",
-  "Premium finishes",
-  "Luxury appliances",
-  "Custom cabinetry",
+  "None"
+]
+
+
+
+const moveInOutSpecialAreas = [
+  "Kitchen with heavy grease",
+  "Bathroom with mold/mildew",
+  "Carpet stains",
+  "Hardwood floor damage",
+  "Window treatments",
+  "Ceiling fans",
+  "Light fixtures",
+  "Appliances",
+  "Garage",
+  "Basement",
+  "Attic",
+  "Storage areas",
+  "Closets and pantries",
+  "Air ducts",
+  "Exterior windows",
+  "Balcony/Patio",
   "None"
 ]
 
@@ -145,6 +173,12 @@ const partnershipTiers = [
   { value: "tier3", label: "Tier 3 - Unlimited cleanings" },
 ]
 
+const moveTypes = [
+  { value: "move-in", label: "Move-In - Cleaning new property" },
+  { value: "move-out", label: "Move-Out - Cleaning before leaving" },
+  { value: "both", label: "Both - Moving from one place to another" },
+]
+
 export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier = "Basic", selectedPackage }: PropertyDetailsFormProps) {
   const [formData, setFormData] = useState<PropertyDetails>({
     bedrooms: 0,
@@ -162,6 +196,10 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
     urgency: "standard",
     stagingLevel: "none",
     partnershipTier: "tier1",
+    moveType: "move-out",
+    securityDeposit: false,
+    propertyManager: false,
+    walkthroughRequired: false,
   })
 
   const [errors, setErrors] = useState<PropertyDetailsErrors>({})
@@ -233,8 +271,13 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
     }
   }
 
-  // Get special areas based on tier
+  // Get special areas based on tier and package
   const getSpecialAreas = () => {
+    // Check if this is a Move-In/Out package
+    if (selectedPackage?.toLowerCase().includes('move')) {
+      return moveInOutSpecialAreas
+    }
+    
     switch (selectedTier) {
       case "Basic":
         return basicSpecialAreas
@@ -249,6 +292,11 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
 
   // Get tier-specific icon
   const getTierIcon = () => {
+    // Check if this is a Move-In/Out package
+    if (selectedPackage?.toLowerCase().includes('move')) {
+      return <Truck className="h-6 w-6 text-tc-vibrant-blue" />
+    }
+    
     switch (selectedTier) {
       case "Basic":
         return <Home className="h-6 w-6 text-tc-vibrant-blue" />
@@ -263,6 +311,11 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
 
   // Get tier-specific title
   const getTierTitle = () => {
+    // Check if this is a Move-In/Out package
+    if (selectedPackage?.toLowerCase().includes('move')) {
+      return "Move-In/Out Property Details"
+    }
+    
     switch (selectedTier) {
       case "Basic":
         return "Instant Impact Property Details"
@@ -277,6 +330,11 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
 
   // Get tier-specific description
   const getTierDescription = () => {
+    // Check if this is a Move-In/Out package
+    if (selectedPackage?.toLowerCase().includes('move')) {
+      return "Detailed assessment for move-in/out cleaning requirements"
+    }
+    
     switch (selectedTier) {
       case "Basic":
         return "Quick assessment for immediate cleaning needs"
