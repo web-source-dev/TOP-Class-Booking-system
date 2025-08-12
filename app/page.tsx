@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Home, Sparkles, Handshake, Truck } from "lucide-react"
+import { Home, Sparkles, Handshake } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface CategoryCardProps {
@@ -37,31 +37,9 @@ export default function HomePage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState<string | null>(null)
 
-  // Health check effect
-  useEffect(() => {
-    const checkHealth = async () => {
-      try {
-        // Use the same backend URL as in the booking page
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL;
-        const response = await fetch(`${backendUrl}/health`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-        console.log(response)
-      } catch (error) {
-        console.error('Health check error:', error)
-      }
-    }
-
-    checkHealth()
-  }, [])
-
   const handleCategorySelect = (category: string) => {
     const encodedCategory = encodeURIComponent(category);
     const targetUrl = `https://www.topclassclean.com/book-now?category=${encodedCategory}`;
-    // const targetUrl = `http://localhost:3001/booking?category=${encodedCategory}`;
   
     if (typeof window !== "undefined") {
       window.parent.location.href = targetUrl;
@@ -74,7 +52,7 @@ export default function HomePage() {
         {/* Category Selection */}
         <div className="grid gap-8">
           <h2 className="text-3xl font-bold text-center text-gray-800">Choose Your Cleaning Category</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <CategoryCard
               name="Instant"
               description="Quick, thorough one-time cleans for immediate results."
@@ -86,12 +64,6 @@ export default function HomePage() {
               description="Premium, white-glove service for occupied or vacated homes."
               icon={Sparkles}
               onSelect={() => handleCategorySelect("Concierge")}
-            />
-            <CategoryCard
-              name="Move-In/Out"
-              description="Specialized cleaning for moving transitions and property handovers."
-              icon={Truck}
-              onSelect={() => handleCategorySelect("MoveInOut")}
             />
             <CategoryCard
               name="Partner"

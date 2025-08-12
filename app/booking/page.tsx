@@ -34,7 +34,7 @@ interface CleaningPackage {
   id: string
   name: string
   tier: "Basic" | "Concierge" | "Partner"
-  category: "Instant" | "Concierge" | "Partner" | "MoveInOut"
+  category: "Instant" | "Concierge" | "Partner"
   description: string
   whoFor: string
   timeEstimate: string
@@ -221,106 +221,6 @@ const packagesData: CleaningPackage[] = [
       "Full co-branding integration",
     ],
   },
-  // Move-In/Move-Out Packages
-  {
-    id: "move-out-essential",
-    name: "Move-Out Essential",
-    tier: "Basic",
-    category: "MoveInOut",
-    description:
-      "Comprehensive move-out cleaning to ensure you get your full security deposit back. Covers all essential areas that landlords and property managers check.",
-    whoFor: "Tenants moving out, homeowners selling, or anyone needing thorough move-out cleaning.",
-    timeEstimate: "4–6 hours, 2 cleaners",
-    priceRange: "$299",
-    minPrice: 299,
-    features: [
-      "Complete kitchen deep clean (appliances, cabinets, countertops)",
-      "Full bathroom sanitization (shower, tub, toilet, sink)",
-      "Floor cleaning and baseboard detailing",
-      "Window cleaning (interior)",
-      "Trash removal and final inspection",
-    ],
-  },
-  {
-    id: "move-out-premium",
-    name: "Move-Out Premium",
-    tier: "Basic",
-    category: "MoveInOut",
-    description:
-      "Premium move-out service with extra attention to detail. Perfect for high-end rentals or when you want to ensure maximum deposit return.",
-    whoFor: "High-end rental tenants, luxury property owners, or those wanting premium results.",
-    timeEstimate: "6–8 hours, 2–3 cleaners",
-    priceRange: "$449",
-    minPrice: 449,
-    features: [
-      "Everything in Move-Out Essential",
-      "Appliance interior cleaning (fridge, oven, dishwasher)",
-      "Cabinet and drawer interior cleaning",
-      "Window tracks and sills deep cleaning",
-      "Light fixture cleaning",
-      "Wall spot cleaning and touch-ups",
-    ],
-  },
-  {
-    id: "move-in-ready",
-    name: "Move-In Ready",
-    tier: "Basic",
-    category: "MoveInOut",
-    description:
-      "Fresh start cleaning for your new home. Ensures your new space is spotless and ready for you to move in with confidence.",
-    whoFor: "New homeowners, tenants moving into a new place, or anyone wanting a fresh start.",
-    timeEstimate: "4–6 hours, 2 cleaners",
-    priceRange: "$349",
-    minPrice: 349,
-    features: [
-      "Complete home sanitization",
-      "Kitchen deep clean and appliance cleaning",
-      "Bathroom sanitization and grout cleaning",
-      "Floor and carpet cleaning",
-      "Air duct cleaning (optional add-on)",
-      "Fresh scent application",
-    ],
-  },
-  {
-    id: "move-in-premium",
-    name: "Move-In Premium",
-    tier: "Basic",
-    category: "MoveInOut",
-    description:
-      "Premium move-in service for those who want their new home to feel brand new. Includes advanced cleaning techniques and premium products.",
-    whoFor: "Luxury home buyers, families with children, or those with high cleanliness standards.",
-    timeEstimate: "6–8 hours, 2–3 cleaners",
-    priceRange: "$549",
-    minPrice: 549,
-    features: [
-      "Everything in Move-In Ready",
-      "Advanced sanitization treatment",
-      "Premium cleaning products",
-      "Air purification treatment",
-      "Allergen reduction cleaning",
-      "Post-cleaning inspection and touch-ups",
-    ],
-  },
-  {
-    id: "move-in-out-concierge",
-    name: "Move-In/Out Concierge",
-    tier: "Concierge",
-    category: "MoveInOut",
-    description:
-      "White-glove move-in/out service with personalized attention. Perfect for busy professionals or those who want a stress-free moving experience.",
-    whoFor: "Busy professionals, luxury property owners, or those wanting concierge-level service.",
-    timeEstimate: "8+ hours, 3+ cleaners",
-    priceRange: "$799",
-    minPrice: 799,
-    features: [
-      "Personalized consultation and planning",
-      "Premium move-in/out cleaning",
-      "Storage area cleaning (closets, pantries)",
-      "Exterior window cleaning",
-      "Garage or parking area cleaning",
-      "Post-service walkthrough and satisfaction guarantee",
-    ],
-  },
 ]
 
 const addOnsData: AddOn[] = [
@@ -344,12 +244,6 @@ const addOnsData: AddOn[] = [
   { id: "pressure-washing", name: "Pressure\nWash", price: 150 },
   { id: "pool-deck-cleaning", name: "Pool\nDeck", price: 150 },
   { id: "trash-bin-wash", name: "Trash\nWash", price: 20 },
-  // Move-In/Out specific add-ons
-  { id: "air-duct-cleaning", name: "Air Duct\nClean", price: 200 },
-  { id: "closet-organization", name: "Closet\nOrganize", price: 120 },
-  { id: "pantry-organization", name: "Pantry\nOrganize", price: 100 },
-  { id: "garage-organization", name: "Garage\nOrganize", price: 150 },
-  { id: "storage-unit-clean", name: "Storage\nClean", price: 180 },
 ]
 
 // Additional service pricing
@@ -400,7 +294,7 @@ function BookingSystemContent() {
   const [currentStage, setCurrentStage] = useState<"category" | "tiers" | "property-details" | "add-ons" | "schedule" | "contact" | "review">(
     "category"
   )
-  const [selectedCategory, setSelectedCategory] = useState<"Instant" | "Concierge" | "Partner" | "MoveInOut" | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<"Instant" | "Concierge" | "Partner" | null>(null)
   const [selectedPackage, setSelectedPackage] = useState<CleaningPackage | null>(null)
   const [selectedAddOns, setSelectedAddOns] = useState<Set<string>>(new Set())
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
@@ -448,7 +342,7 @@ function BookingSystemContent() {
           specialInstructions: contactData?.specialInstructions || "", 
           preferredContact: contactData?.preferredContact || "email", 
         });
-        setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" | "MoveInOut" )
+        setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" )
         // Move to tiers stage when category is received from Wix
         if (categoryparam) {
           setCurrentStage("tiers")

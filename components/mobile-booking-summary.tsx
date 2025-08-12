@@ -15,7 +15,7 @@ interface MobileBookingSummaryProps {
     id: string
     name: string
     tier: "Basic" | "Concierge" | "Partner"
-    category: "Instant" | "Concierge" | "Partner" | "MoveInOut"
+    category: "Instant" | "Concierge" | "Partner"
     description: string
     whoFor: string
     timeEstimate: string
