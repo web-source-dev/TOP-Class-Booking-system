@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Home, Sparkles, Handshake, Truck } from "lucide-react"
@@ -36,6 +36,27 @@ function CategoryCard({ name, description, icon: Icon, onSelect }: CategoryCardP
 export default function HomePage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState<string | null>(null)
+
+  // Health check effect
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        // Use the same backend URL as in the booking page
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+        const response = await fetch(`${backendUrl}/health`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        console.log(response)
+      } catch (error) {
+        console.error('Health check error:', error)
+      }
+    }
+
+    checkHealth()
+  }, [])
 
   const handleCategorySelect = (category: string) => {
     const encodedCategory = encodeURIComponent(category);
