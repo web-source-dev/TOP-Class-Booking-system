@@ -438,6 +438,40 @@ function BookingSystemContent() {
   //   console.log("🧪 Dev mode: category set to Move In/Move Out, stage set to tiers");
   // }, []);
   
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const { type, email, message } = event.data;
+
+      if (type === "userLogin") {
+        console.log("✅ Received login info:", { email, message });
+
+        setContactData((prev: ContactFormData | null) => ({
+          ...prev,
+          email: email || prev?.email || "",
+        }) as ContactFormData );
+      }
+
+      if (type === "userLoginFailed") {
+        console.warn("⚠️ Login failed:", message);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    // 🔄 Poll every 10 seconds in case login info arrives later
+    const interval = setInterval(() => {
+      console.log("⏳ Requesting user login info again...");
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: "request-user-info" }, "*");
+      }
+    }, 10000);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      clearInterval(interval);
+    };
+  }, []);
+
   const isMobile = useIsMobile()
 
   // LocalStorage functions
