@@ -58,16 +58,6 @@ export function ContactForm({ onSubmit, isLoading = false, initialData, isEmailF
     }
   }, [initialData])
 
-  // Ensure email persists when it comes from Wix
-  useEffect(() => {
-    if (isEmailFromWix && initialData?.email && !formData.email) {
-      setFormData(prev => ({
-        ...prev,
-        email: initialData.email || ""
-      }))
-    }
-  }, [isEmailFromWix, initialData?.email, formData.email])
-
   const validateForm = (): boolean => {
     const newErrors: Partial<ContactFormData> = {}
 
@@ -113,11 +103,6 @@ export function ContactForm({ onSubmit, isLoading = false, initialData, isEmailF
   }
 
   const handleInputChange = (field: keyof ContactFormData, value: string) => {
-    // Prevent clearing email if it came from Wix and user tries to clear it
-    if (field === "email" && isEmailFromWix && !value.trim()) {
-      return;
-    }
-    
     setFormData(prev => ({ ...prev, [field]: value }))
     // Clear error when user starts typing
     if (errors[field]) {
