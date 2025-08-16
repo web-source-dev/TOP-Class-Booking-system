@@ -454,6 +454,10 @@ function BookingSystemContent() {
       if (type === "userLoginFailed") {
         console.warn("⚠️ Login failed:", message);
       }
+
+      if (type === "loginRequested") {
+        console.log("🔄 Login request acknowledged by Wix");
+      }
     };
 
     window.addEventListener("message", handleMessage);

@@ -58,6 +58,42 @@ export function ContactForm({ onSubmit, isLoading = false, initialData, isEmailF
     }
   }, [initialData])
 
+  // Request login from Wix if email is missing when component loads
+  useEffect(() => {
+    if (!formData.email && !isSubmitting) {
+      console.log("📧 Email missing, requesting login from Wix...")
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: "request-login" }, "*")
+      }
+    }
+  }, [formData.email, isSubmitting])
+
+  // Listen for login responses from Wix
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const { type, email, message } = event.data;
+
+      if (type === "userLogin") {
+        console.log("✅ Contact form received login info:", { email, message });
+        setFormData(prev => ({
+          ...prev,
+          email: email || prev.email
+        }));
+      }
+
+      if (type === "userLoginFailed") {
+        console.warn("⚠️ Contact form: Login failed:", message);
+      }
+
+      if (type === "loginRequested") {
+        console.log("🔄 Contact form: Login request acknowledged by Wix");
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
   const validateForm = (): boolean => {
     const newErrors: Partial<ContactFormData> = {}
 
