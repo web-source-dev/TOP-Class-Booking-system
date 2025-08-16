@@ -332,6 +332,20 @@ const additionalServicePricing = {
   finalDayTouchUp: 79,
 }
 
+// Concierge service pricing
+const conciergeServicePricing = {
+  listingStatus: {
+    occupied: 0, // No additional charge for occupied
+    vacant: 50,  // $50 for vacant properties
+    staging: 75  // $75 for staging properties
+  },
+  urgency: {
+    standard: 0,   // No additional charge for standard
+    rush: 100,     // $100 for rush service
+    "same-day": 200 // $200 for same-day service
+  }
+}
+
 
 // Contact form data interface
 interface ContactFormData {
@@ -651,6 +665,19 @@ function BookingSystemContent() {
       const additionalBathrooms = Math.max(0, propertyDetails.bathrooms - 1)
       const bathroomSurcharge = additionalBathrooms * 25
       total += bathroomSurcharge
+    }
+    
+    // Add Concierge service pricing
+    if (propertyDetails && selectedPackage?.tier === "Concierge") {
+      // Add listing status pricing
+      if (propertyDetails.listingType) {
+        total += conciergeServicePricing.listingStatus[propertyDetails.listingType]
+      }
+      
+      // Add urgency pricing
+      if (propertyDetails.urgency) {
+        total += conciergeServicePricing.urgency[propertyDetails.urgency]
+      }
     }
     
     return total
@@ -1754,7 +1781,7 @@ function BookingSystemContent() {
                           <Settings className="h-6 w-6 text-tc-vibrant-blue" /> Additional Services
                         </h4>
                         <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-                          {(isOccupied || lightStaging || scentBooster || finalDayTouchUp || (propertyDetails && (propertyDetails.bedrooms > 2 || propertyDetails.bathrooms > 1))) ? (
+                          {(isOccupied || lightStaging || scentBooster || finalDayTouchUp || (propertyDetails && (propertyDetails.bedrooms > 2 || propertyDetails.bathrooms > 1)) || (propertyDetails && selectedPackage?.tier === "Concierge" && (propertyDetails.listingType || propertyDetails.urgency))) ? (
                             <>
                               {isOccupied && (
                                 <div className="flex justify-between items-center">
@@ -1797,6 +1824,27 @@ function BookingSystemContent() {
                                   </span>
                                   <span className="font-medium text-gray-800">
                                     ${(propertyDetails.bathrooms - 1) * 25}
+                                  </span>
+                                </div>
+                              )}
+                              {/* Concierge Service Charges */}
+                              {propertyDetails && selectedPackage?.tier === "Concierge" && propertyDetails.listingType && propertyDetails.listingType !== "occupied" && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-700">
+                                    {propertyDetails.listingType === "vacant" ? "Vacant Property" : "Staging Property"}
+                                  </span>
+                                  <span className="font-medium text-gray-800">
+                                    ${conciergeServicePricing.listingStatus[propertyDetails.listingType]}
+                                  </span>
+                                </div>
+                              )}
+                              {propertyDetails && selectedPackage?.tier === "Concierge" && propertyDetails.urgency && propertyDetails.urgency !== "standard" && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-700">
+                                    {propertyDetails.urgency === "rush" ? "Rush Service" : "Same Day Service"}
+                                  </span>
+                                  <span className="font-medium text-gray-800">
+                                    ${conciergeServicePricing.urgency[propertyDetails.urgency]}
                                   </span>
                                 </div>
                               )}
@@ -1947,6 +1995,7 @@ function BookingSystemContent() {
           propertyImages={propertyDetails?.propertyImages || []}
           paymentType={paymentType}
           additionalServicePricing={additionalServicePricing}
+          conciergeServicePricing={conciergeServicePricing}
         />
       )}
     </div>

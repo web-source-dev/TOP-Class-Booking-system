@@ -51,6 +51,8 @@ interface MobileBookingSummaryProps {
       name: string
       size: number
     }>
+    listingType?: "occupied" | "vacant" | "staging"
+    urgency?: "standard" | "rush" | "same-day"
   }
   propertyImages?: Array<{
     id: string
@@ -65,6 +67,18 @@ interface MobileBookingSummaryProps {
     lightStaging: number
     scentBooster: number
     finalDayTouchUp: number
+  }
+  conciergeServicePricing?: {
+    listingStatus: {
+      occupied: number
+      vacant: number
+      staging: number
+    }
+    urgency: {
+      standard: number
+      rush: number
+      "same-day": number
+    }
   }
 }
 
@@ -87,6 +101,18 @@ export function MobileBookingSummary({
     lightStaging: 139,
     scentBooster: 35,
     finalDayTouchUp: 79,
+  },
+  conciergeServicePricing = {
+    listingStatus: {
+      occupied: 0,
+      vacant: 50,
+      staging: 75,
+    },
+    urgency: {
+      standard: 0,
+      rush: 100,
+      "same-day": 200,
+    },
   },
 }: MobileBookingSummaryProps) {
   const [open, setOpen] = useState(false)
@@ -194,7 +220,7 @@ export function MobileBookingSummary({
                 <Settings className="h-5 w-5 text-tc-vibrant-blue" /> Additional Services
               </h4>
               <div className="bg-gray-50 p-3 rounded-lg space-y-2 text-sm">
-                {(isOccupied || lightStaging || scentBooster || finalDayTouchUp || (propertyDetails && (propertyDetails.bedrooms > 2 || propertyDetails.bathrooms > 1))) ? (
+                {(isOccupied || lightStaging || scentBooster || finalDayTouchUp || (propertyDetails && (propertyDetails.bedrooms > 2 || propertyDetails.bathrooms > 1)) || (propertyDetails && selectedPackage?.tier === "Concierge" && (propertyDetails.listingType || propertyDetails.urgency))) ? (
                   <>
                     {isOccupied && (
                       <div className="flex justify-between items-center">
@@ -237,6 +263,27 @@ export function MobileBookingSummary({
                         </span>
                         <span className="font-medium text-gray-800">
                           ${(propertyDetails.bathrooms - 1) * 25}
+                        </span>
+                      </div>
+                    )}
+                    {/* Concierge Service Charges */}
+                    {propertyDetails && selectedPackage?.tier === "Concierge" && propertyDetails.listingType && propertyDetails.listingType !== "occupied" && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">
+                          {propertyDetails.listingType === "vacant" ? "Vacant Property" : "Staging Property"}
+                        </span>
+                        <span className="font-medium text-gray-800">
+                          ${conciergeServicePricing.listingStatus[propertyDetails.listingType]}
+                        </span>
+                      </div>
+                    )}
+                    {propertyDetails && selectedPackage?.tier === "Concierge" && propertyDetails.urgency && propertyDetails.urgency !== "standard" && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">
+                          {propertyDetails.urgency === "rush" ? "Rush Service" : "Same Day Service"}
+                        </span>
+                        <span className="font-medium text-gray-800">
+                          ${conciergeServicePricing.urgency[propertyDetails.urgency]}
                         </span>
                       </div>
                     )}
