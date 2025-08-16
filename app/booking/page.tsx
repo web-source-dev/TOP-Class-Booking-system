@@ -413,7 +413,7 @@ function BookingSystemContent() {
       if (type === "categoryInfo") {
         setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" | "Move In/Move Out");
         if (categoryparam) setCurrentStage("tiers");
-        console.log("✅ Received category info:", { categoryparam });
+        console.log("✅ Received category info:", { categoryparam, currentStage ,selectedCategory});
       }
     };
   
