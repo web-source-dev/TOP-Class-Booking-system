@@ -425,6 +425,9 @@ function BookingSystemContent() {
           setCurrentStage("tiers")
         }
         console.log("✅ Received user info from Wix:", { email, id ,categoryparam});
+      }else{
+        setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" | "Move In/Move Out")
+        setCurrentStage("tiers")
       }
     };
 
