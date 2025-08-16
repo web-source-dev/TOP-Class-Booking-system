@@ -394,7 +394,7 @@ function BookingSystemContent() {
   const [currentStage, setCurrentStage] = useState<"category" | "tiers" | "property-details" | "add-ons" | "schedule" | "contact" | "payment-type" | "review">(
     "category"
   )
-  const [selectedCategory, setSelectedCategory] = useState<"Instant" | "Concierge" | "Partner" | "Moveinout " | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<"Instant" | "Concierge" | "Partner" | "Moveinout" | null>(null)
   const [selectedPackage, setSelectedPackage] = useState<CleaningPackage | null>(null)
   const [selectedAddOns, setSelectedAddOns] = useState<Set<string>>(new Set())
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
@@ -435,7 +435,7 @@ function BookingSystemContent() {
       }
   
       if (type === "categoryInfo") {
-        setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" | "Moveinout "); 
+        setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" | "Moveinout"); 
         if (categoryparam) setCurrentStage("tiers");
         console.log("✅ Received category info:", { categoryparam, currentStage ,selectedCategory});
       }
@@ -456,7 +456,7 @@ function BookingSystemContent() {
   //     id: "dev-user-123",
   //   } as ContactFormData));
   
-  //   setSelectedCategory("MoveInOut");
+  //   setSelectedCategory("Moveinout");
   //   setCurrentStage("tiers");
   
   //   console.log("🧪 Dev mode: category set to MoveInOut, stage set to tiers");
