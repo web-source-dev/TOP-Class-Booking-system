@@ -903,22 +903,36 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
                   <div className="space-y-4">
                     <Label className="text-sm font-medium">Service Urgency</Label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {urgencyLevels.map((urgency) => (
-                        <Card
-                          key={urgency.value}
-                          className={cn(
-                            "cursor-pointer transition-all duration-200 hover:shadow-md border-2",
-                            formData.urgency === urgency.value
-                              ? "border-tc-vibrant-blue bg-tc-light-vibrant-blue/10"
-                              : "border-gray-200 hover:border-gray-300"
-                          )}
-                          onClick={() => handleInputChange("urgency", urgency.value)}
-                        >
-                          <CardContent className="p-3 text-center">
-                            <h3 className="font-semibold text-gray-900 text-xs">{urgency.label}</h3>
-                          </CardContent>
-                        </Card>
-                      ))}
+                      {urgencyLevels.map((urgency) => {
+                        const urgencyPricing = {
+                          standard: 0,
+                          rush: 100,
+                          "same-day": 200
+                        }
+                        const additionalCharge = urgencyPricing[urgency.value as keyof typeof urgencyPricing]
+                        
+                        return (
+                          <Card
+                            key={urgency.value}
+                            className={cn(
+                              "cursor-pointer transition-all duration-200 hover:shadow-md border-2",
+                              formData.urgency === urgency.value
+                                ? "border-tc-vibrant-blue bg-tc-light-vibrant-blue/10"
+                                : "border-gray-200 hover:border-gray-300"
+                            )}
+                            onClick={() => handleInputChange("urgency", urgency.value)}
+                          >
+                            <CardContent className="p-3 text-center">
+                              <h3 className="font-semibold text-gray-900 text-xs">{urgency.label}</h3>
+                              {additionalCharge > 0 && (
+                                <div className="text-xs text-tc-vibrant-blue font-medium mt-1 bg-tc-light-vibrant-blue/20 px-2 py-1 rounded">
+                                  +${additionalCharge} additional
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        )
+                      })}
                     </div>
                   </div>
                 </div>
@@ -961,22 +975,36 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
                   <div className="space-y-4">
                     <Label className="text-sm font-medium">Service Urgency</Label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {urgencyLevels.map((urgency) => (
-                        <Card
-                          key={urgency.value}
-                          className={cn(
-                            "cursor-pointer transition-all duration-200 hover:shadow-md border-2",
-                            formData.urgency === urgency.value
-                              ? "border-tc-vibrant-blue bg-tc-light-vibrant-blue/10"
-                              : "border-gray-200 hover:border-gray-300"
-                          )}
-                          onClick={() => handleInputChange("urgency", urgency.value)}
-                        >
-                          <CardContent className="p-3 text-center">
-                            <h3 className="font-semibold text-gray-900 text-xs">{urgency.label}</h3>
-                          </CardContent>
-                        </Card>
-                      ))}
+                      {urgencyLevels.map((urgency) => {
+                        const urgencyPricing = {
+                          standard: 0,
+                          rush: 100,
+                          "same-day": 200
+                        }
+                        const additionalCharge = urgencyPricing[urgency.value as keyof typeof urgencyPricing]
+                        
+                        return (
+                          <Card
+                            key={urgency.value}
+                            className={cn(
+                              "cursor-pointer transition-all duration-200 hover:shadow-md border-2",
+                              formData.urgency === urgency.value
+                                ? "border-tc-vibrant-blue bg-tc-light-vibrant-blue/10"
+                                : "border-gray-200 hover:border-gray-300"
+                            )}
+                            onClick={() => handleInputChange("urgency", urgency.value)}
+                          >
+                            <CardContent className="p-3 text-center">
+                              <h3 className="font-semibold text-gray-900 text-xs">{urgency.label}</h3>
+                              {additionalCharge > 0 && (
+                                <div className="text-xs text-tc-vibrant-blue font-medium mt-1 bg-tc-light-vibrant-blue/20 px-2 py-1 rounded">
+                                  +${additionalCharge} additional
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        )
+                      })}
                     </div>
                   </div>
                 </div>
