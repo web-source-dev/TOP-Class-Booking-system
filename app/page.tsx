@@ -75,7 +75,7 @@ export default function HomePage() {
               name="Move-Out /Move-In"
               description="Specialized cleaning services for property transitions."
               icon={Truck}
-              onSelect={() => handleCategorySelect("Movein/out")}
+              onSelect={() => handleCategorySelect("Move-Out /Move-In")}
             />
           </div>
         </div>

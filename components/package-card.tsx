@@ -8,7 +8,7 @@ interface Package {
   id: string
   name: string
   tier: "Basic" | "Concierge" | "Partner"
-  category: "Instant" | "Concierge" | "Partner" | "Moveinout"
+  category: "Instant" | "Concierge" | "Partner" | "MoveInOut"
   description: string
   whoFor: string
   timeEstimate: string
