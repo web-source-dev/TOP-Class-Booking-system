@@ -390,6 +390,10 @@ function BookingSystemContent() {
   
   // LocalStorage keys
   const STORAGE_KEY = 'topclass_booking_data'
+  
+  // State to track if we have received email from Wix
+  const [hasEmailFromWix, setHasEmailFromWix] = useState(false)
+  
   useEffect(() => {
     if (window.parent && window.parent !== window) {
       // Request separately
@@ -399,15 +403,34 @@ function BookingSystemContent() {
     }
   
     const handleMessage = (event: MessageEvent) => {
-      const { type, email, id, categoryparam } = event.data;
+      const { type, email, id, categoryparam, message } = event.data;
   
       if (type === "userInfo") {
-        setContactData((prev: ContactFormData | null) => ({
-          ...prev,
-          email: email || "",
-          id: id || "",
-        }) as ContactFormData);
-        console.log("✅ Received user info:", { email, id });
+        if (email && !hasEmailFromWix) {
+          setContactData((prev: ContactFormData | null) => ({
+            ...prev,
+            email: email || "",
+            id: id || "",
+          }) as ContactFormData);
+          setHasEmailFromWix(true);
+          console.log("✅ Received user info:", { email, id });
+        }
+      }
+      
+      if (type === "userLogin") {
+        console.log("✅ Received login info:", { email, message });
+        
+        if (email && !hasEmailFromWix) {
+          setContactData((prev: ContactFormData | null) => ({
+            ...prev,
+            email: email || prev?.email || "",
+          }) as ContactFormData);
+          setHasEmailFromWix(true);
+        }
+      }
+
+      if (type === "userLoginFailed") {
+        console.warn("⚠️ Login failed:", message);
       }
   
       if (type === "categoryInfo") {
@@ -418,11 +441,20 @@ function BookingSystemContent() {
     };
   
     window.addEventListener("message", handleMessage);
+
+    // 🔄 Poll every 10 seconds only if we don't have email yet
+    const interval = setInterval(() => {
+      if (!hasEmailFromWix && window.parent && window.parent !== window) {
+        console.log("⏳ Requesting user login info again...");
+        window.parent.postMessage({ type: "request-user-info" }, "*");
+      }
+    }, 10000);
   
     return () => {
       window.removeEventListener("message", handleMessage);
+      clearInterval(interval);
     };
-  }, []);
+  }, [hasEmailFromWix]);
   
   // useEffect(() => {
   //   // 👉 Development-only default values
@@ -437,40 +469,6 @@ function BookingSystemContent() {
   
   //   console.log("🧪 Dev mode: category set to Move In/Move Out, stage set to tiers");
   // }, []);
-  
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      const { type, email, message } = event.data;
-
-      if (type === "userLogin") {
-        console.log("✅ Received login info:", { email, message });
-
-        setContactData((prev: ContactFormData | null) => ({
-          ...prev,
-          email: email || prev?.email || "",
-        }) as ContactFormData );
-      }
-
-      if (type === "userLoginFailed") {
-        console.warn("⚠️ Login failed:", message);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-
-    // 🔄 Poll every 10 seconds in case login info arrives later
-    const interval = setInterval(() => {
-      console.log("⏳ Requesting user login info again...");
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({ type: "request-user-info" }, "*");
-      }
-    }, 10000);
-
-    return () => {
-      window.removeEventListener("message", handleMessage);
-      clearInterval(interval);
-    };
-  }, []);
 
   const isMobile = useIsMobile()
 
@@ -489,6 +487,7 @@ function BookingSystemContent() {
       finalDayTouchUp,
       contactData,
       propertyDetails,
+      hasEmailFromWix,
       timestamp: Date.now()
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(bookingData))
@@ -504,7 +503,8 @@ function BookingSystemContent() {
     scentBooster,
     finalDayTouchUp,
     contactData,
-    propertyDetails
+    propertyDetails,
+    hasEmailFromWix
   ])
 
   const loadFromLocalStorage = useCallback(() => {
@@ -527,7 +527,14 @@ function BookingSystemContent() {
           setLightStaging(bookingData.lightStaging || false)
           setScentBooster(bookingData.scentBooster || false)
           setFinalDayTouchUp(bookingData.finalDayTouchUp || false)
-          setContactData(bookingData.contactData || null)
+          // Preserve email from Wix if it exists
+          if (bookingData.contactData && bookingData.hasEmailFromWix) {
+            setContactData(bookingData.contactData)
+            setHasEmailFromWix(true)
+          } else {
+            setContactData(bookingData.contactData || null)
+            setHasEmailFromWix(bookingData.hasEmailFromWix || false)
+          }
           setPropertyDetails(bookingData.propertyDetails || null)
         } else {
           // Clear old data
@@ -1208,7 +1215,7 @@ function BookingSystemContent() {
                   onSubmit={handleContactSubmit}
                   isLoading={isLoading}
                   initialData={contactData || undefined}
-                  isEmailFromWix={!!contactData?.email}
+                  isEmailFromWix={hasEmailFromWix}
                 />
               </div>
             )}
