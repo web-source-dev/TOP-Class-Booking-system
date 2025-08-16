@@ -81,6 +81,10 @@ const basicSpecialAreas = [
   "Bathroom with mold/mildew",
   "Carpet stains",
   "Hardwood floor damage",
+  "Move-in/move-out cleaning",
+  "Appliance deep cleaning",
+  "Cabinet and drawer cleaning",
+  "Storage space cleaning",
   "None"
 ]
 
@@ -98,6 +102,10 @@ const conciergeSpecialAreas = [
   "Attic",
   "Outdoor areas",
   "Staging areas",
+  "Move-in/move-out cleaning",
+  "Appliance deep cleaning",
+  "Cabinet and drawer cleaning",
+  "Storage space cleaning",
   "None"
 ]
 
@@ -118,6 +126,10 @@ const partnerSpecialAreas = [
   "Premium finishes",
   "Luxury appliances",
   "Custom cabinetry",
+  "Move-in/move-out cleaning",
+  "Appliance deep cleaning",
+  "Cabinet and drawer cleaning",
+  "Storage space cleaning",
   "None"
 ]
 

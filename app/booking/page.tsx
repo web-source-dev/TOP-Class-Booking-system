@@ -34,7 +34,7 @@ interface CleaningPackage {
   id: string
   name: string
   tier: "Basic" | "Concierge" | "Partner"
-  category: "Instant" | "Concierge" | "Partner"
+  category: "Instant" | "Concierge" | "Partner" | "Move In/Move Out"
   description: string
   whoFor: string
   timeEstimate: string
@@ -69,7 +69,7 @@ const packagesData: CleaningPackage[] = [
     tier: "Basic",
     category: "Instant",
     description:
-      "A detailed spot-clean focusing on your home’s or listing’s most important areas — kitchens, bathrooms, floors, and high-touch spots. A great last pass before an open house or move-in.",
+      "A detailed spot-clean focusing on your home's or listing's most important areas — kitchens, bathrooms, floors, and high-touch spots. A great last pass before an open house or move-in.",
     whoFor: "Realtors needing show-ready polish or owners prepping for handover.",
     timeEstimate: "3–4 hours, 1–2 cleaners",
     priceRange: "$249",
@@ -88,8 +88,8 @@ const packagesData: CleaningPackage[] = [
     tier: "Basic",
     category: "Instant",
     description:
-      "A full one-time deep clean covering all main rooms, appliances, baseboards, plus final detail work. Ideal for pre-move-in/move-out or a big “reset” for your home.",
-    whoFor: "Renters, sellers, new homeowners — or anyone wanting the full “just-moved-in” fresh start.",
+      "A full one-time deep clean covering all main rooms, appliances, baseboards, plus final detail work. Ideal for pre-move-in/move-out or a big reset for your home.",
+    whoFor: "Renters, sellers, new homeowners — or anyone wanting the full just-moved-in fresh start.",
     timeEstimate: "4–6 hours, 2 cleaners",
     priceRange: "$349",
     minPrice: 349,
@@ -107,7 +107,7 @@ const packagesData: CleaningPackage[] = [
     tier: "Basic",
     category: "Instant",
     description:
-      "Our premium one-off clean for high-value listings or special showings. Includes full interior detail, high-touch disinfection, light staging help (straightening décor, final touches), and a signature scent if requested.",
+      "Our premium one-off clean for high-value listings or special showings. Includes full interior detail, high-touch disinfection, light staging help (straightening decor, final touches), and a signature scent if requested.",
     whoFor: "Luxury agents, homeowners selling premium properties, or Airbnb hosts wanting a guest-ready feel.",
     timeEstimate: "6+ hours, 2–3 cleaners",
     priceRange: "$499",
@@ -118,6 +118,83 @@ const packagesData: CleaningPackage[] = [
       "Light staging assistance",
       "Signature scent (optional)",
       "Photo-ready touches",
+    ],
+  },
+  // Move In/Move Out Packages
+  {
+    id: "move-in-out-basic",
+    name: "Move In/Move Out Basic",
+    tier: "Basic",
+    category: "Move In/Move Out",
+    description:
+      "Essential cleaning service for move-in or move-out situations. Perfect for tenants, new homeowners, or anyone needing a thorough clean during transitions.",
+    whoFor: "Tenants moving in/out, new homeowners, or anyone needing transition cleaning.",
+    timeEstimate: "3–4 hours, 1–2 cleaners",
+    priceRange: "$249",
+    minPrice: 249,
+    features: [
+      "Complete room cleaning",
+      "Kitchen deep clean",
+      "Bathroom sanitization",
+      "Floor cleaning",
+      "Trash removal",
+    ],
+  },
+  {
+    id: "move-in-out-standard",
+    name: "Move In/Move Out Standard",
+    tier: "Basic",
+    category: "Move In/Move Out",
+    description:
+      "Comprehensive move-in/move-out cleaning including appliances, cabinets, and detailed attention to all areas. Ideal for thorough property transitions.",
+    whoFor: "Homeowners, landlords, or property managers needing detailed transition cleaning.",
+    timeEstimate: "4–6 hours, 2 cleaners",
+    priceRange: "$349",
+    minPrice: 349,
+    features: [
+      "Full deep clean of all rooms",
+      "Appliance interior/exterior clean",
+      "Cabinet and drawer cleaning",
+      "Baseboard and trim detail",
+      "Window sills and tracks",
+    ],
+  },
+  {
+    id: "move-in-out-premium",
+    name: "Move In/Move Out Premium",
+    tier: "Basic",
+    category: "Move In/Move Out",
+    description:
+      "Premium move-in/move-out service with extra attention to detail, including grout cleaning, appliance deep clean, and comprehensive property preparation.",
+    whoFor: "Luxury properties, high-end rentals, or properties requiring meticulous attention to detail.",
+    timeEstimate: "6–8 hours, 2–3 cleaners",
+    priceRange: "$499",
+    minPrice: 499,
+    features: [
+      "Premium full interior detail",
+      "Grout cleaning and restoration",
+      "Appliance deep cleaning",
+      "Cabinet and drawer organization",
+      "Final inspection and touch-ups",
+    ],
+  },
+  {
+    id: "move-in-out-complete",
+    name: "Move In/Move Out Complete",
+    tier: "Basic",
+    category: "Move In/Move Out",
+    description:
+      "Complete move-in/move-out service including all areas, appliances, storage spaces, and premium finishing touches for a truly move-ready property.",
+    whoFor: "High-value properties, luxury rentals, or properties requiring the highest level of cleaning detail.",
+    timeEstimate: "8+ hours, 3 cleaners",
+    priceRange: "$699",
+    minPrice: 699,
+    features: [
+      "Complete property deep clean",
+      "All appliance deep cleaning",
+      "Storage space organization",
+      "Premium finishing touches",
+      "Move-in ready guarantee",
     ],
   },
   {
@@ -163,7 +240,7 @@ const packagesData: CleaningPackage[] = [
     name: "Showcase Concierge",
     tier: "Concierge",
     category: "Concierge",
-    description: "Target: Premium listings that need to wow buyers — “white glove” level.",
+    description: "Target: Premium listings that need to wow buyers — white glove level.",
     whoFor: "Premium listings",
     timeEstimate: "Varies",
     priceRange: "$799",
@@ -192,7 +269,7 @@ const packagesData: CleaningPackage[] = [
       "Priority scheduling – next-day slots when available",
       "Dedicated contact line to the TC Cleaning coordinator",
       "1 free touch-up per listing",
-      "Use of the ‘Powered by TC Cleaning’ branding on marketing",
+      "Use of the 'Powered by TC Cleaning' branding on marketing",
       "$10 bonus for each confirmed 5-star review generated",
       "Lead sharing optional",
     ],
@@ -294,7 +371,7 @@ function BookingSystemContent() {
   const [currentStage, setCurrentStage] = useState<"category" | "tiers" | "property-details" | "add-ons" | "schedule" | "contact" | "review">(
     "category"
   )
-  const [selectedCategory, setSelectedCategory] = useState<"Instant" | "Concierge" | "Partner" | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<"Instant" | "Concierge" | "Partner" | "Move In/Move Out" | null>(null)
   const [selectedPackage, setSelectedPackage] = useState<CleaningPackage | null>(null)
   const [selectedAddOns, setSelectedAddOns] = useState<Set<string>>(new Set())
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
@@ -342,7 +419,7 @@ function BookingSystemContent() {
           specialInstructions: contactData?.specialInstructions || "", 
           preferredContact: contactData?.preferredContact || "email", 
         });
-        setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" )
+        setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" | "Move In/Move Out")
         // Move to tiers stage when category is received from Wix
         if (categoryparam) {
           setCurrentStage("tiers")
@@ -358,6 +435,20 @@ function BookingSystemContent() {
     };
   }, []);
 
+  // useEffect(() => {
+  //   // 👉 Development-only default values
+  //   setContactData((prev: ContactFormData | null) => ({
+  //     ...prev,
+  //     email: "muhammadtayyab2928@gmail.com",
+  //     id: "dev-user-123",
+  //   } as ContactFormData));
+  
+  //   setSelectedCategory("Move In/Move Out");
+  //   setCurrentStage("tiers");
+  
+  //   console.log("🧪 Dev mode: category set to Move In/Move Out, stage set to tiers");
+  // }, []);
+  
   const isMobile = useIsMobile()
 
   // LocalStorage functions

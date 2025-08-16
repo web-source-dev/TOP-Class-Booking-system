@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Home, Sparkles, Handshake } from "lucide-react"
+import { Home, Sparkles, Handshake, Truck } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface CategoryCardProps {
@@ -52,7 +52,7 @@ export default function HomePage() {
         {/* Category Selection */}
         <div className="grid gap-8">
           <h2 className="text-3xl font-bold text-center text-gray-800">Choose Your Cleaning Category</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <CategoryCard
               name="Instant"
               description="Quick, thorough one-time cleans for immediate results."
@@ -70,6 +70,12 @@ export default function HomePage() {
               description="Exclusive ongoing partnerships for real estate professionals."
               icon={Handshake}
               onSelect={() => handleCategorySelect("Partner")}
+            />
+            <CategoryCard
+              name="Move In/Move Out"
+              description="Specialized cleaning services for property transitions."
+              icon={Truck}
+              onSelect={() => handleCategorySelect("Move In/Move Out")}
             />
           </div>
         </div>

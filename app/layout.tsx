@@ -8,7 +8,7 @@ import { Toaster } from '@/components/ui/sonner'
 
 export const metadata: Metadata = {
   title: 'TC Cleaning - Professional Cleaning Services',
-  description: 'Book professional cleaning services for your home or business. Instant Impact, Concierge, and Partner cleaning packages available.',
+  description: 'Book professional cleaning services for your home or business. Instant Impact, Concierge, Partner, and Move In/Move Out cleaning packages available.',
   generator: 'Next.js',
   keywords: 'cleaning services, house cleaning, professional cleaning, TC Cleaning',
   authors: [{ name: 'TC Cleaning' }],
