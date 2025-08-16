@@ -390,54 +390,40 @@ function BookingSystemContent() {
   
   // LocalStorage keys
   const STORAGE_KEY = 'topclass_booking_data'
-
   useEffect(() => {
-    // Request user info when component mounts
     if (window.parent && window.parent !== window) {
+      // Request separately
       window.parent.postMessage({ type: "request-user-info" }, "*");
-      console.log("🔄 Requested user info from Wix");
+      window.parent.postMessage({ type: "request-category" }, "*");
+      console.log("🔄 Requested user info & category from Wix");
     }
-
-    // Listen for response from Wix
+  
     const handleMessage = (event: MessageEvent) => {
-      // Optional: security check
-      // if (event.origin !== "https://your-wix-domain.com") return;
-
-      const { type, email, id,categoryparam } = event.data;
-
+      const { type, email, id, categoryparam } = event.data;
+  
       if (type === "userInfo") {
-        setContactData({
+        setContactData((prev: ContactFormData | null) => ({
+          ...prev,
           email: email || "",
           id: id || "",
-          firstName: contactData?.firstName || "",
-          lastName: contactData?.lastName || "", 
-          phone: contactData?.phone || "", 
-          address: contactData?.address || "", 
-          city: contactData?.city || "", 
-          state: contactData?.state || "", 
-          zipCode: contactData?.zipCode || "", 
-          specialInstructions: contactData?.specialInstructions || "", 
-          preferredContact: contactData?.preferredContact || "email", 
-        });
-        setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" | "Move In/Move Out")
-        // Move to tiers stage when category is received from Wix
-        if (categoryparam) {
-          setCurrentStage("tiers")
-        }
-        console.log("✅ Received user info from Wix:", { email, id ,categoryparam});
-      }else{
-        setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" | "Move In/Move Out")
-        setCurrentStage("tiers")
+        }) as ContactFormData);
+        console.log("✅ Received user info:", { email, id });
+      }
+  
+      if (type === "categoryInfo") {
+        setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" | "Move In/Move Out");
+        if (categoryparam) setCurrentStage("tiers");
+        console.log("✅ Received category info:", { categoryparam });
       }
     };
-
+  
     window.addEventListener("message", handleMessage);
-
+  
     return () => {
       window.removeEventListener("message", handleMessage);
     };
   }, []);
-
+  
   // useEffect(() => {
   //   // 👉 Development-only default values
   //   setContactData((prev: ContactFormData | null) => ({
