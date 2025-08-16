@@ -34,7 +34,7 @@ interface CleaningPackage {
   id: string
   name: string
   tier: "Basic" | "Concierge" | "Partner"
-  category: "Instant" | "Concierge" | "Partner" | "Move In/Move Out"
+  category: "Instant" | "Concierge" | "Partner" | "MoveInOut"
   description: string
   whoFor: string
   timeEstimate: string
@@ -120,12 +120,12 @@ const packagesData: CleaningPackage[] = [
       "Photo-ready touches",
     ],
   },
-  // Move In/Move Out Packages
+  // MoveInOut Packages
   {
     id: "move-in-out-basic",
-    name: "Move In/Move Out Basic",
+    name: "MoveInOut Basic",
     tier: "Basic",
-    category: "Move In/Move Out",
+    category: "MoveInOut",
     description:
       "Essential cleaning service for move-in or move-out situations. Perfect for tenants, new homeowners, or anyone needing a thorough clean during transitions.",
     whoFor: "Tenants moving in/out, new homeowners, or anyone needing transition cleaning.",
@@ -142,9 +142,9 @@ const packagesData: CleaningPackage[] = [
   },
   {
     id: "move-in-out-standard",
-    name: "Move In/Move Out Standard",
+    name: "MoveInOut Standard",
     tier: "Basic",
-    category: "Move In/Move Out",
+    category: "MoveInOut",
     description:
       "Comprehensive move-in/move-out cleaning including appliances, cabinets, and detailed attention to all areas. Ideal for thorough property transitions.",
     whoFor: "Homeowners, landlords, or property managers needing detailed transition cleaning.",
@@ -161,9 +161,9 @@ const packagesData: CleaningPackage[] = [
   },
   {
     id: "move-in-out-premium",
-    name: "Move In/Move Out Premium",
+    name: "MoveInOut Premium",
     tier: "Basic",
-    category: "Move In/Move Out",
+    category: "MoveInOut",
     description:
       "Premium move-in/move-out service with extra attention to detail, including grout cleaning, appliance deep clean, and comprehensive property preparation.",
     whoFor: "Luxury properties, high-end rentals, or properties requiring meticulous attention to detail.",
@@ -180,9 +180,9 @@ const packagesData: CleaningPackage[] = [
   },
   {
     id: "move-in-out-complete",
-    name: "Move In/Move Out Complete",
+    name: "MoveInOut Complete",
     tier: "Basic",
-    category: "Move In/Move Out",
+    category: "MoveInOut",
     description:
       "Complete move-in/move-out service including all areas, appliances, storage spaces, and premium finishing touches for a truly move-ready property.",
     whoFor: "High-value properties, luxury rentals, or properties requiring the highest level of cleaning detail.",
@@ -368,10 +368,10 @@ interface PropertyDetails {
 }
 
 function BookingSystemContent() {
-  const [currentStage, setCurrentStage] = useState<"category" | "tiers" | "property-details" | "add-ons" | "schedule" | "contact" | "review">(
+  const [currentStage, setCurrentStage] = useState<"category" | "tiers" | "property-details" | "add-ons" | "schedule" | "contact" | "payment-type" | "review">(
     "category"
   )
-  const [selectedCategory, setSelectedCategory] = useState<"Instant" | "Concierge" | "Partner" | "Move In/Move Out" | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<"Instant" | "Concierge" | "Partner" | "MoveInOut" | null>(null)
   const [selectedPackage, setSelectedPackage] = useState<CleaningPackage | null>(null)
   const [selectedAddOns, setSelectedAddOns] = useState<Set<string>>(new Set())
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
@@ -384,6 +384,7 @@ function BookingSystemContent() {
   // New state for enhanced features
   const [contactData, setContactData] = useState<ContactFormData | null>(null)
   const [propertyDetails, setPropertyDetails] = useState<PropertyDetails | null>(null)
+  const [paymentType, setPaymentType] = useState<"oneTime" | "monthly" | "quarterly">("oneTime")
   const [isLoading, setIsLoading] = useState(false)
   const [rateLimitError, setRateLimitError] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<string[]>([])
@@ -411,7 +412,7 @@ function BookingSystemContent() {
       }
   
       if (type === "categoryInfo") {
-        setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" | "Move In/Move Out");
+        setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" | "MoveInOut");
         if (categoryparam) setCurrentStage("tiers");
         console.log("✅ Received category info:", { categoryparam, currentStage ,selectedCategory});
       }
@@ -432,10 +433,10 @@ function BookingSystemContent() {
   //     id: "dev-user-123",
   //   } as ContactFormData));
   
-  //   setSelectedCategory("Move In/Move Out");
+  //   setSelectedCategory("MoveInOut");
   //   setCurrentStage("tiers");
   
-  //   console.log("🧪 Dev mode: category set to Move In/Move Out, stage set to tiers");
+  //   console.log("🧪 Dev mode: category set to MoveInOut, stage set to tiers");
   // }, []);
   
   useEffect(() => {
@@ -493,6 +494,7 @@ function BookingSystemContent() {
       finalDayTouchUp,
       contactData,
       propertyDetails,
+      paymentType,
       timestamp: Date.now()
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(bookingData))
@@ -508,7 +510,8 @@ function BookingSystemContent() {
     scentBooster,
     finalDayTouchUp,
     contactData,
-    propertyDetails
+    propertyDetails,
+    paymentType
   ])
 
   const loadFromLocalStorage = useCallback(() => {
@@ -533,6 +536,7 @@ function BookingSystemContent() {
           setFinalDayTouchUp(bookingData.finalDayTouchUp || false)
           setContactData(bookingData.contactData || null)
           setPropertyDetails(bookingData.propertyDetails || null)
+          setPaymentType(bookingData.paymentType || "oneTime")
         } else {
           // Clear old data
           localStorage.removeItem(STORAGE_KEY)
@@ -546,6 +550,23 @@ function BookingSystemContent() {
 
   const clearLocalStorage = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY)
+    localStorage.clear()
+    console.log("🧹 Cleared localStorage")
+    setCurrentStage("category")
+    setSelectedCategory(null)
+    setSelectedPackage(null)
+    setSelectedAddOns(new Set())
+    setSelectedDate(undefined)
+    setSelectedTime(undefined)
+    setIsOccupied(false)
+    setLightStaging(false)
+    setScentBooster(false)
+    setFinalDayTouchUp(false)
+    setContactData(null)
+    setPropertyDetails(null)
+    setPaymentType("oneTime")
+    setRateLimitError(null)
+    setValidationErrors([])
   }, [])
 
   // Load data from localStorage on component mount
@@ -568,6 +589,7 @@ function BookingSystemContent() {
     { id: "add-ons", title: "Add-ons", description: "Customize services" },
     { id: "schedule", title: "Schedule", description: "Pick date & time" },
     { id: "contact", title: "Contact", description: "Your information" },
+    { id: "payment-type", title: "Payment", description: "Payment frequency" },
     { id: "review", title: "Review", description: "Confirm & pay" },
   ], [])
 
@@ -717,9 +739,28 @@ function BookingSystemContent() {
 
       // Store contact data
       setContactData(data)
-      setCurrentStage("review")
+      setCurrentStage("payment-type")
     } catch (error) {
       console.error("Contact form submission error:", error)
+      setValidationErrors(["An error occurred. Please try again."])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handlePaymentTypeSubmit = async () => {
+    setIsLoading(true)
+    setRateLimitError(null)
+
+    try {
+      // Check rate limit
+      const rateLimitOk = await checkRateLimit('form')
+      if (!rateLimitOk) return
+
+      // Store payment type and move to review
+      setCurrentStage("review")
+    } catch (error) {
+      console.error("Payment type submission error:", error)
       setValidationErrors(["An error occurred. Please try again."])
     } finally {
       setIsLoading(false)
@@ -767,6 +808,7 @@ function BookingSystemContent() {
     setFinalDayTouchUp(false)
     setContactData(null)
     setPropertyDetails(null)
+    setPaymentType("oneTime")
     setRateLimitError(null)
     setValidationErrors([])
   }
@@ -810,8 +852,14 @@ function BookingSystemContent() {
     setValidationErrors([])
   }
 
+  const resetToPaymentType = () => {
+    setCurrentStage("payment-type")
+    setRateLimitError(null)
+    setValidationErrors([])
+  }
+
   // Booking submission function
-  const handleBookingSubmit = useCallback(async (paymentType: 'full' | 'deposit') => {
+  const handleBookingSubmit = useCallback(async () => {
     setIsLoading(true)
     setRateLimitError(null)
 
@@ -827,6 +875,9 @@ function BookingSystemContent() {
         return total + (addOn ? addOn.price : 0)
       }, 0)
 
+      // Determine payment type for database
+      const dbPaymentType = paymentType === "oneTime" ? "oneTime" : "recurring"
+
       // Prepare all booking data
       const bookingData = {
         selectedPackage,
@@ -841,7 +892,8 @@ function BookingSystemContent() {
         scentBooster,
         finalDayTouchUp,
         totalPrice: calculateTotalPrice,
-        paymentType,
+        paymentType: dbPaymentType,
+        paymentFrequency: paymentType,
         bookingId: `booking_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       }
 
@@ -868,10 +920,20 @@ function BookingSystemContent() {
         // If embedded in Wix, send message to parent
         window.parent.postMessage({
           type: "start-payment",
-          payload: bookingData
+          payload: {
+            ...bookingData,
+            paymentFrequency: paymentType, // Include the user-friendly payment frequency
+            packageName: selectedPackage.name,
+            packageTier: selectedPackage.tier
+          }
         }, '*')
 
-        console.log('Payment request sent to Wix:', bookingData)
+        console.log('Payment request sent to Wix:', {
+          ...bookingData,
+          paymentFrequency: paymentType,
+          packageName: selectedPackage.name,
+          packageTier: selectedPackage.tier
+        })
       }
         // Clear localStorage and reset form
         clearLocalStorage()
@@ -894,6 +956,7 @@ function BookingSystemContent() {
       scentBooster,
       finalDayTouchUp,
       calculateTotalPrice,
+      paymentType,
       addOnsData
     ])
 
@@ -922,7 +985,7 @@ function BookingSystemContent() {
   const filteredPackages = selectedCategory ? packagesData.filter((pkg) => pkg.category === selectedCategory) : []
 
   // Determine if summary panel should be shown
-  const showSummaryPanel = currentStage !== "review" && currentStage !== "contact" && currentStage !== "property-details" && currentStage !== "tiers" && currentStage !== "schedule"
+  const showSummaryPanel = currentStage !== "review" && currentStage !== "contact" && currentStage !== "property-details" && currentStage !== "tiers" && currentStage !== "schedule" && currentStage !== "payment-type"
 
   return (
     <div className="min-h-screen bg-tc-light-blue py-12 px-4 sm:px-6 lg:px-8">
@@ -1217,15 +1280,201 @@ function BookingSystemContent() {
               </div>
             )}
 
+            {currentStage === "payment-type" && selectedPackage && (
+              // Stage 6: Payment Type Selection
+              <div className="grid gap-8">
+                <div className="flex flex-col sm:flex-row items-center justify-start mb-4 gap-4">
+                  <Button
+                    variant="outline"
+                    onClick={resetToContact}
+                    className="w-full sm:w-auto bg-transparent border-gray-300 text-gray-700 hover:bg-gray-100"
+                  >
+                    <ChevronLeft className="mr-2 h-4 w-4" /> Back
+                  </Button>
+                </div>
 
+                {/* Rate Limit Error */}
+                {rateLimitError && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{rateLimitError}</AlertDescription>
+                  </Alert>
+                )}
+
+                {/* Validation Errors */}
+                {validationErrors.length > 0 && (
+                  <Alert variant="destructive">
+                    <AlertDescription>
+                      <ul className="list-disc list-inside space-y-1">
+                        {validationErrors.map((error, index) => (
+                          <li key={index}>{error}</li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                <section id="payment-type-section">
+                  <div className="text-center mb-8">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                      <PackageIcon className="h-6 w-6 text-tc-vibrant-blue" />
+                      <h1 className="text-3xl font-bold text-gray-900">Payment Frequency</h1>
+                    </div>
+                    <p className="text-gray-600 text-lg">
+                      Choose how you'd like to pay for your cleaning service.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* One Time Payment */}
+                    <Card
+                      className={cn(
+                        "cursor-pointer transition-all duration-200 hover:shadow-xl border-2",
+                        paymentType === "oneTime"
+                          ? "border-tc-vibrant-blue bg-tc-light-vibrant-blue/10 shadow-lg"
+                          : "border-gray-200 hover:border-tc-vibrant-blue"
+                      )}
+                      onClick={() => setPaymentType("oneTime")}
+                    >
+                      <CardHeader className="text-center pb-4">
+                        <div className="mx-auto mb-4 w-16 h-16 bg-tc-vibrant-blue rounded-full flex items-center justify-center">
+                          <PackageIcon className="h-8 w-8 text-white" />
+                        </div>
+                        <CardTitle className="text-xl font-bold text-gray-900">One Time</CardTitle>
+                        <CardDescription className="text-gray-600">
+                          Single cleaning service
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="text-center">
+                        <div className="text-3xl font-bold text-tc-vibrant-blue mb-2">
+                          ${calculateTotalPrice}
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4">
+                          Pay once for this cleaning service
+                        </p>
+                        <ul className="text-sm text-gray-700 space-y-1">
+                          <li>• Single payment</li>
+                          <li>• No commitment</li>
+                          <li>• Perfect for occasional cleaning</li>
+                        </ul>
+                      </CardContent>
+                    </Card>
+
+                    {/* Monthly Payment */}
+                    <Card
+                      className={cn(
+                        "cursor-pointer transition-all duration-200 hover:shadow-xl border-2",
+                        paymentType === "monthly"
+                          ? "border-tc-vibrant-blue bg-tc-light-vibrant-blue/10 shadow-lg"
+                          : "border-gray-200 hover:border-tc-vibrant-blue"
+                      )}
+                      onClick={() => setPaymentType("monthly")}
+                    >
+                      <CardHeader className="text-center pb-4">
+                        <div className="mx-auto mb-4 w-16 h-16 bg-tc-vibrant-blue rounded-full flex items-center justify-center">
+                          <CalendarDays className="h-8 w-8 text-white" />
+                        </div>
+                        <CardTitle className="text-xl font-bold text-gray-900">Monthly</CardTitle>
+                        <CardDescription className="text-gray-600">
+                          Recurring monthly service
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="text-center">
+                        <div className="text-3xl font-bold text-tc-vibrant-blue mb-2">
+                          ${calculateTotalPrice}/mo
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4">
+                          Monthly recurring payments
+                        </p>
+                        <ul className="text-sm text-gray-700 space-y-1">
+                          <li>• Monthly billing</li>
+                          <li>• Consistent service</li>
+                          <li>• Easy to manage</li>
+                        </ul>
+                      </CardContent>
+                    </Card>
+
+                    {/* Quarterly Payment */}
+                    <Card
+                      className={cn(
+                        "cursor-pointer transition-all duration-200 hover:shadow-xl border-2",
+                        paymentType === "quarterly"
+                          ? "border-tc-vibrant-blue bg-tc-light-vibrant-blue/10 shadow-lg"
+                          : "border-gray-200 hover:border-tc-vibrant-blue"
+                      )}
+                      onClick={() => setPaymentType("quarterly")}
+                    >
+                      <CardHeader className="text-center pb-4">
+                        <div className="mx-auto mb-4 w-16 h-16 bg-tc-vibrant-blue rounded-full flex items-center justify-center">
+                          <CalendarDays className="h-8 w-8 text-white" />
+                        </div>
+                        <CardTitle className="text-xl font-bold text-gray-900">Quarterly</CardTitle>
+                        <CardDescription className="text-gray-600">
+                          Recurring quarterly service
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="text-center">
+                        <div className="text-3xl font-bold text-tc-vibrant-blue mb-2">
+                          ${calculateTotalPrice}/qtr
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4">
+                          Quarterly recurring payments
+                        </p>
+                        <ul className="text-sm text-gray-700 space-y-1">
+                          <li>• Quarterly billing</li>
+                          <li>• Seasonal service</li>
+                          <li>• Cost-effective option</li>
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Payment Type Summary */}
+                  <Card className="mt-8 p-6 bg-gradient-to-r from-tc-light-vibrant-blue/20 to-blue-50/50 border-2 border-tc-vibrant-blue/30">
+                    <div className="text-center">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">
+                        Selected Payment Plan
+                      </h3>
+                      <div className="text-2xl font-bold text-tc-vibrant-blue mb-2">
+                        {paymentType === "oneTime" && `$${calculateTotalPrice} - One Time Payment`}
+                        {paymentType === "monthly" && `$${calculateTotalPrice}/month - Monthly Recurring`}
+                        {paymentType === "quarterly" && `$${calculateTotalPrice}/quarter - Quarterly Recurring`}
+                      </div>
+                      <p className="text-gray-600">
+                        {paymentType === "oneTime" && "You'll be charged once for this service."}
+                        {paymentType === "monthly" && "You'll be charged monthly for recurring service."}
+                        {paymentType === "quarterly" && "You'll be charged quarterly for recurring service."}
+                      </p>
+                    </div>
+                  </Card>
+
+                  {/* Continue Button */}
+                  <div className="flex justify-end mt-8">
+                    <Button
+                      onClick={handlePaymentTypeSubmit}
+                      disabled={isLoading}
+                      className="bg-tc-vibrant-blue hover:bg-tc-dark-vibrant-blue text-white py-3 px-8 text-lg font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        'Continue to Review'
+                      )}
+                    </Button>
+                  </div>
+                </section>
+              </div>
+            )}
 
             {currentStage === "review" && selectedPackage && (
-              // Stage 5: Comprehensive Summary & Payment (No side panel)
+              // Stage 7: Comprehensive Summary & Payment (No side panel)
               <div className="grid gap-8">
                 <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-4">
                   <Button
                     variant="outline"
-                    onClick={resetToContact}
+                    onClick={resetToPaymentType}
                     className="w-full sm:w-auto bg-transparent border-gray-300 text-gray-700 hover:bg-gray-100"
                   >
                     <ChevronLeft className="mr-2 h-4 w-4" /> Back
@@ -1480,6 +1729,37 @@ function BookingSystemContent() {
                           )}
                         </div>
                       </div>
+
+                      {/* Payment Type Summary */}
+                      <div className="grid gap-3">
+                        <h4 className="flex items-center gap-2 font-semibold text-xl text-gray-800">
+                          <PackageIcon className="h-6 w-6 text-tc-vibrant-blue" /> Payment Plan
+                        </h4>
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="font-medium text-gray-900">
+                                {paymentType === "oneTime" && "One Time Payment"}
+                                {paymentType === "monthly" && "Monthly Recurring"}
+                                {paymentType === "quarterly" && "Quarterly Recurring"}
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                {paymentType === "oneTime" && "Single payment for this service"}
+                                {paymentType === "monthly" && "Monthly recurring billing"}
+                                {paymentType === "quarterly" && "Quarterly recurring billing"}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-bold text-lg text-tc-vibrant-blue">
+                                {paymentType === "oneTime" && `$${calculateTotalPrice}`}
+                                {paymentType === "monthly" && `$${calculateTotalPrice}/mo`}
+                                {paymentType === "quarterly" && `$${calculateTotalPrice}/qtr`}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                     </CardContent>
                     <CardFooter className="flex flex-col sm:flex-row justify-between items-center border-t pt-6 pb-6 px-6 gap-6 bg-tc-light-vibrant-blue rounded-b-xl">
                       <div className="text-3xl font-extrabold text-tc-dark-vibrant-blue">
@@ -1488,7 +1768,7 @@ function BookingSystemContent() {
                       <div className="flex justify-end w-full">
                         <Button
                           className="py-3 px-8 text-lg bg-tc-vibrant-blue hover:bg-tc-dark-vibrant-blue"
-                          onClick={() => handleBookingSubmit('full')}
+                          onClick={handleBookingSubmit}
                           disabled={isLoading}
                         >
                           {isLoading ? (
@@ -1552,6 +1832,14 @@ function BookingSystemContent() {
                       {selectedTime && ` at ${selectedTime}`}
                     </p>
                   </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">Payment Plan:</h3>
+                    <p className="text-gray-700">
+                      {paymentType === "oneTime" && "One Time Payment"}
+                      {paymentType === "monthly" && "Monthly Recurring"}
+                      {paymentType === "quarterly" && "Quarterly Recurring"}
+                    </p>
+                  </div>
                   <div className="border-t pt-4 mt-4">
                     <div className="flex justify-between items-center">
                       <span className="text-xl font-bold">Estimated Total:</span>
@@ -1578,6 +1866,7 @@ function BookingSystemContent() {
           lightStaging={lightStaging}
           scentBooster={scentBooster}
           finalDayTouchUp={finalDayTouchUp}
+          paymentType={paymentType}
           additionalServicePricing={additionalServicePricing}
         />
       )}

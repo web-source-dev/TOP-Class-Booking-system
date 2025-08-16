@@ -15,7 +15,7 @@ interface MobileBookingSummaryProps {
     id: string
     name: string
     tier: "Basic" | "Concierge" | "Partner"
-    category: "Instant" | "Concierge" | "Partner" | "Move In/Move Out"
+    category: "Instant" | "Concierge" | "Partner" | "MoveInOut"
     description: string
     whoFor: string
     timeEstimate: string
@@ -32,6 +32,7 @@ interface MobileBookingSummaryProps {
   lightStaging: boolean
   scentBooster: boolean
   finalDayTouchUp: boolean
+  paymentType?: "oneTime" | "monthly" | "quarterly"
   additionalServicePricing?: {
     occupiedHome: number
     lightStaging: number
@@ -51,6 +52,7 @@ export function MobileBookingSummary({
   lightStaging,
   scentBooster,
   finalDayTouchUp,
+  paymentType = "oneTime",
   additionalServicePricing = {
     occupiedHome: 89,
     lightStaging: 139,
@@ -193,6 +195,36 @@ export function MobileBookingSummary({
                 ) : (
                   <p className="text-muted-foreground">No additional services selected.</p>
                 )}
+              </div>
+            </div>
+
+            {/* Payment Type Summary */}
+            <div className="grid gap-2">
+              <h4 className="flex items-center gap-2 font-semibold text-lg text-gray-800">
+                <PackageIcon className="h-5 w-5 text-tc-vibrant-blue" /> Payment Plan
+              </h4>
+              <div className="bg-gray-50 p-3 rounded-lg text-sm">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {paymentType === "oneTime" && "One Time Payment"}
+                      {paymentType === "monthly" && "Monthly Recurring"}
+                      {paymentType === "quarterly" && "Quarterly Recurring"}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      {paymentType === "oneTime" && "Single payment"}
+                      {paymentType === "monthly" && "Monthly billing"}
+                      {paymentType === "quarterly" && "Quarterly billing"}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-tc-vibrant-blue">
+                      {paymentType === "oneTime" && `$${calculateTotalPrice}`}
+                      {paymentType === "monthly" && `$${calculateTotalPrice}/mo`}
+                      {paymentType === "quarterly" && `$${calculateTotalPrice}/qtr`}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>

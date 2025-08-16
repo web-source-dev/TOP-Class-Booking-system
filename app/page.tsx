@@ -72,10 +72,10 @@ export default function HomePage() {
               onSelect={() => handleCategorySelect("Partner")}
             />
             <CategoryCard
-              name="Move In/Move Out"
+              name="MoveInOut"
               description="Specialized cleaning services for property transitions."
               icon={Truck}
-              onSelect={() => handleCategorySelect("Move In/Move Out")}
+              onSelect={() => handleCategorySelect("MoveInOut")}
             />
           </div>
         </div>
