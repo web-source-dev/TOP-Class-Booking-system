@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { PackageIcon, PlusCircle, CalendarDays, Settings, ChevronUp } from "lucide-react"
+import { PackageIcon, PlusCircle, CalendarDays, Settings, ChevronUp, Camera } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface MobileBookingSummaryProps {
@@ -32,6 +32,33 @@ interface MobileBookingSummaryProps {
   lightStaging: boolean
   scentBooster: boolean
   finalDayTouchUp: boolean
+  propertyDetails?: {
+    bedrooms: number
+    bathrooms: number
+    squareFootage: number
+    propertyType: string
+    serviceType: string
+    condition: string
+    floors: number
+    pets: boolean
+    children: boolean
+    specialAreas: string[]
+    additionalNotes: string
+    propertyImages: Array<{
+      id: string
+      url: string
+      publicId: string
+      name: string
+      size: number
+    }>
+  }
+  propertyImages?: Array<{
+    id: string
+    url: string
+    publicId: string
+    name: string
+    size: number
+  }>
   paymentType?: "oneTime" | "monthly" | "quarterly"
   additionalServicePricing?: {
     occupiedHome: number
@@ -52,6 +79,8 @@ export function MobileBookingSummary({
   lightStaging,
   scentBooster,
   finalDayTouchUp,
+  propertyDetails,
+  propertyImages = [],
   paymentType = "oneTime",
   additionalServicePricing = {
     occupiedHome: 89,
@@ -165,7 +194,7 @@ export function MobileBookingSummary({
                 <Settings className="h-5 w-5 text-tc-vibrant-blue" /> Additional Services
               </h4>
               <div className="bg-gray-50 p-3 rounded-lg space-y-2 text-sm">
-                {(isOccupied || lightStaging || scentBooster || finalDayTouchUp) ? (
+                {(isOccupied || lightStaging || scentBooster || finalDayTouchUp || (propertyDetails && (propertyDetails.bedrooms > 2 || propertyDetails.bathrooms > 1))) ? (
                   <>
                     {isOccupied && (
                       <div className="flex justify-between items-center">
@@ -191,12 +220,62 @@ export function MobileBookingSummary({
                         <span className="font-medium text-gray-800">${additionalServicePricing.finalDayTouchUp}</span>
                       </div>
                     )}
+                    {propertyDetails && propertyDetails.bedrooms > 2 && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">
+                          Additional Bedrooms ({propertyDetails.bedrooms - 2} × $50)
+                        </span>
+                        <span className="font-medium text-gray-800">
+                          ${(propertyDetails.bedrooms - 2) * 50}
+                        </span>
+                      </div>
+                    )}
+                    {propertyDetails && propertyDetails.bathrooms > 1 && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">
+                          Additional Bathrooms ({propertyDetails.bathrooms - 1} × $25)
+                        </span>
+                        <span className="font-medium text-gray-800">
+                          ${(propertyDetails.bathrooms - 1) * 25}
+                        </span>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <p className="text-muted-foreground">No additional services selected.</p>
                 )}
               </div>
             </div>
+
+            {/* Property Images Summary */}
+            {propertyImages.length > 0 && (
+              <div className="grid gap-2">
+                <h4 className="flex items-center gap-2 font-semibold text-lg text-gray-800">
+                  <Camera className="h-5 w-5 text-tc-vibrant-blue" /> Property Images
+                </h4>
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <div className="grid grid-cols-3 gap-2">
+                    {propertyImages.slice(0, 6).map((image) => (
+                      <div key={image.id} className="aspect-square rounded overflow-hidden border border-gray-200">
+                        <img
+                          src={image.url}
+                          alt={image.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  {propertyImages.length > 6 && (
+                    <p className="text-xs text-gray-600 mt-2 text-center">
+                      +{propertyImages.length - 6} more images
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-600 mt-2 text-center">
+                    {propertyImages.length} image{propertyImages.length !== 1 ? 's' : ''} uploaded
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Payment Type Summary */}
             <div className="grid gap-2">

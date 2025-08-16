@@ -8,8 +8,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, Home, Bed, Bath, Minus, Plus, Square, AlertTriangle, Users, PawPrint, Sparkles, Handshake, PackageIcon, ChevronLeft, ChevronRight, Settings, Info } from "lucide-react"
+import { Loader2, Home, Bed, Bath, Minus, Plus, Square, AlertTriangle, Users, PawPrint, Sparkles, Handshake, PackageIcon, ChevronLeft, ChevronRight, Settings, Info, Camera } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { ImageUpload } from "@/components/image-upload"
 
 interface PropertyDetails {
   bedrooms: number
@@ -23,10 +24,17 @@ interface PropertyDetails {
   children: boolean
   specialAreas: string[]
   additionalNotes: string
+  // Image uploads
+  propertyImages: Array<{
+    id: string
+    url: string
+    publicId: string
+    name: string
+    size: number
+  }>
   // Tier-specific fields
   listingType?: "occupied" | "vacant" | "staging"
   urgency?: "standard" | "rush" | "same-day"
-  stagingLevel?: "none" | "light" | "full"
   partnershipTier?: "tier1" | "tier2" | "tier3"
 }
 
@@ -42,9 +50,9 @@ interface PropertyDetailsErrors {
   children?: string
   specialAreas?: string
   additionalNotes?: string
+  propertyImages?: string
   listingType?: string
   urgency?: string
-  stagingLevel?: string
   partnershipTier?: string
 }
 
@@ -85,6 +93,8 @@ const basicSpecialAreas = [
   "Appliance deep cleaning",
   "Cabinet and drawer cleaning",
   "Storage space cleaning",
+  "Fridge Deep Clean",
+  "Oven Deep Clean",
   "None"
 ]
 
@@ -106,6 +116,8 @@ const conciergeSpecialAreas = [
   "Appliance deep cleaning",
   "Cabinet and drawer cleaning",
   "Storage space cleaning",
+  "fridge-deep-clean",
+  "oven-deep-clean",
   "None"
 ]
 
@@ -130,6 +142,8 @@ const partnerSpecialAreas = [
   "Appliance deep cleaning",
   "Cabinet and drawer cleaning",
   "Storage space cleaning",
+  "Fridge Deep Clean",
+  "Oven Deep Clean",
   "None"
 ]
 
@@ -144,13 +158,6 @@ const urgencyLevels = [
   { value: "rush", label: "Rush - 24-48 hours" },
   { value: "same-day", label: "Same Day - Premium rate" },
 ]
-
-const stagingLevels = [
-  { value: "none", label: "No staging needed" },
-  { value: "light", label: "Light staging assistance" },
-  { value: "full", label: "Full staging service" },
-]
-
 const partnershipTiers = [
   { value: "tier1", label: "Tier 1 - Up to 2 cleanings/month" },
   { value: "tier2", label: "Tier 2 - Up to 5 cleanings/month" },
@@ -170,9 +177,9 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
     children: false,
     specialAreas: [],
     additionalNotes: "",
+    propertyImages: [],
     listingType: "occupied",
     urgency: "standard",
-    stagingLevel: "none",
     partnershipTier: "tier1",
   })
 
@@ -201,7 +208,7 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
     {
       id: "service" as const,
       title: "Service Details",
-      description: "Service type and special areas",
+      description: "Service type, special areas, and property images",
       icon: PackageIcon,
       required: true
     },
@@ -551,6 +558,7 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
                    {currentSubStage === "service" && (
                      <ul className="list-disc list-inside space-y-1">
                        {!formData.serviceType && <li>Select service type</li>}
+                       {formData.specialAreas.length === 0 && <li>Select at least one special area or "None"</li>}
                      </ul>
                    )}
                    {currentSubStage === "additional" && (
@@ -616,8 +624,8 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
                  </div>
                </div>
 
-               {/* Property Size Grid */}
-               <div className="space-y-6">
+                               {/* Property Size Grid */}
+                <div className="space-y-6">
                 
                 <div className="grid grid-cols-2 gap-6">
                   {/* Bedrooms */}
@@ -650,6 +658,11 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
                         <Plus className="h-3 w-3" />
                       </Button>
                     </div>
+                    {formData.bedrooms > 2 && (
+                      <div className="text-xs text-tc-vibrant-blue font-medium text-center bg-tc-light-vibrant-blue/20 px-2 py-1 rounded">
+                        +${(formData.bedrooms - 2) * 50} additional charge
+                      </div>
+                    )}
                     {errors.bedrooms && (
                       <Alert variant="destructive" className="py-1">
                         <AlertDescription className="text-xs">{errors.bedrooms}</AlertDescription>
@@ -687,6 +700,11 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
                         <Plus className="h-3 w-3" />
                       </Button>
                     </div>
+                    {formData.bathrooms > 1 && (
+                      <div className="text-xs text-tc-vibrant-blue font-medium text-center bg-tc-light-vibrant-blue/20 px-2 py-1 rounded">
+                        +${(formData.bathrooms - 1) * 25} additional charge
+                      </div>
+                    )}
                     {errors.bathrooms && (
                       <Alert variant="destructive" className="py-1">
                         <AlertDescription className="text-xs">{errors.bathrooms}</AlertDescription>
@@ -903,28 +921,6 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
                       ))}
                     </div>
                   </div>
-
-                  <div className="space-y-4">
-                    <Label className="text-sm font-medium">Staging Requirements</Label>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {stagingLevels.map((level) => (
-                        <Card
-                          key={level.value}
-                          className={cn(
-                            "cursor-pointer transition-all duration-200 hover:shadow-md border-2",
-                            formData.stagingLevel === level.value
-                              ? "border-tc-vibrant-blue bg-tc-light-vibrant-blue/10"
-                              : "border-gray-200 hover:border-gray-300"
-                          )}
-                          onClick={() => handleInputChange("stagingLevel", level.value)}
-                        >
-                          <CardContent className="p-3 text-center">
-                            <h3 className="font-semibold text-gray-900 text-xs">{level.label}</h3>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
                 </div>
               )}
 
@@ -985,8 +981,39 @@ export function PropertyDetailsForm({ onSubmit, isLoading = false, selectedTier 
                   </div>
                 </div>
               )}
+
+              {/* Property Images Section */}
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    Property Images
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Upload photos to help us better understand your property and provide more accurate service
+                  </p>
+                </div>
+                
+                <ImageUpload
+                  onImagesChange={(images) => handleInputChange("propertyImages", images)}
+                  maxImages={10}
+                  maxFileSize={5}
+                  disabled={isSubmitting}
+                />
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-medium text-blue-900 mb-2">💡 Tips for better service:</h4>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• Upload photos of areas that need special attention</li>
+                    <li>• Include shots of any damage, stains, or problem areas</li>
+                    <li>• Show the overall condition of rooms and surfaces</li>
+                    <li>• Photos help us provide more accurate pricing and service planning</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           )}
+
+
 
                      {/* Additional Information Sub-Stage */}
            {currentSubStage === "additional" && (

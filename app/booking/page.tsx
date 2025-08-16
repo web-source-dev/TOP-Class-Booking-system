@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ChevronLeft, PackageIcon, PlusCircle, CalendarDays, Settings, Loader2, User, Building } from "lucide-react"
+import { ChevronLeft, PackageIcon, PlusCircle, CalendarDays, Settings, Loader2, User, Building, Camera } from "lucide-react"
 import { PackageCard } from "@/components/package-card"
 import { AddOnToggle } from "@/components/add-on-toggle"
 import { MobileBookingSummary } from "@/components/mobile-booking-summary"
@@ -301,8 +301,8 @@ const packagesData: CleaningPackage[] = [
 ]
 
 const addOnsData: AddOn[] = [
-  { id: "refrigerator-clean", name: "Fridge\nClean", price: 35 },
-  { id: "oven-range-clean", name: "Oven\nClean", price: 45 },
+  { id: "fridge-deep-clean", name: "Fridge\nDeep Clean", price: 45 },
+  { id: "oven-deep-clean", name: "Oven\nDeep Clean", price: 45 },
   { id: "cabinet-wipe-down", name: "Cabinet\nWipe", price: 45 },
   { id: "pantry-closet-clean", name: "Pantry\nClean", price: 50 },
   { id: "baseboard-trim-detailing", name: "Baseboard\nDetail", price: 60 },
@@ -321,6 +321,7 @@ const addOnsData: AddOn[] = [
   { id: "pressure-washing", name: "Pressure\nWash", price: 150 },
   { id: "pool-deck-cleaning", name: "Pool\nDeck", price: 150 },
   { id: "trash-bin-wash", name: "Trash\nWash", price: 20 },
+  
 ]
 
 // Additional service pricing
@@ -360,6 +361,14 @@ interface PropertyDetails {
   children: boolean
   specialAreas: string[]
   additionalNotes: string
+  // Image uploads
+  propertyImages: Array<{
+    id: string
+    url: string
+    publicId: string
+    name: string
+    size: number
+  }>
   // Tier-specific fields
   listingType?: "occupied" | "vacant" | "staging"
   urgency?: "standard" | "rush" | "same-day"
@@ -631,8 +640,21 @@ function BookingSystemContent() {
       total += additionalServicePricing.finalDayTouchUp
     }
     
+    // Add bedroom and bathroom pricing
+    if (propertyDetails) {
+      // Add $50 for each bedroom beyond 2 bedrooms
+      const additionalBedrooms = Math.max(0, propertyDetails.bedrooms - 2)
+      const bedroomSurcharge = additionalBedrooms * 50
+      total += bedroomSurcharge
+      
+      // Add $25 for each bathroom beyond 1 bathroom
+      const additionalBathrooms = Math.max(0, propertyDetails.bathrooms - 1)
+      const bathroomSurcharge = additionalBathrooms * 25
+      total += bathroomSurcharge
+    }
+    
     return total
-  }, [selectedPackage, selectedAddOns, isOccupied, lightStaging, scentBooster, finalDayTouchUp])
+  }, [selectedPackage, selectedAddOns, isOccupied, lightStaging, scentBooster, finalDayTouchUp, propertyDetails])
 
   // Rate limiting and validation functions
   const checkRateLimit = async (action: 'booking' | 'form') => {
@@ -1650,6 +1672,41 @@ function BookingSystemContent() {
                         </div>
                       )}
 
+                      {/* Property Images Summary */}
+                      {propertyDetails && propertyDetails.propertyImages && propertyDetails.propertyImages.length > 0 && (
+                        <div className="grid gap-3">
+                          <h4 className="flex items-center gap-2 font-semibold text-xl text-gray-800">
+                            <Camera className="h-6 w-6 text-tc-vibrant-blue" /> Property Images
+                          </h4>
+                          <div className="bg-gray-50 p-4 rounded-lg">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                              {propertyDetails.propertyImages.map((image) => (
+                                <div key={image.id} className="relative group">
+                                  <div className="aspect-square rounded-lg overflow-hidden border border-gray-200">
+                                    <img
+                                      src={image.url}
+                                      alt={image.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                  <div className="mt-2">
+                                    <p className="text-xs text-gray-600 truncate" title={image.name}>
+                                      {image.name}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      {(image.size / 1024 / 1024).toFixed(1)}MB
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <p className="text-sm text-gray-600 mt-4">
+                              {propertyDetails.propertyImages.length} image{propertyDetails.propertyImages.length !== 1 ? 's' : ''} uploaded
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Contact Information Summary */}
                       {contactData && (
                         <div className="grid gap-3">
@@ -1697,7 +1754,7 @@ function BookingSystemContent() {
                           <Settings className="h-6 w-6 text-tc-vibrant-blue" /> Additional Services
                         </h4>
                         <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-                          {(isOccupied || lightStaging || scentBooster || finalDayTouchUp) ? (
+                          {(isOccupied || lightStaging || scentBooster || finalDayTouchUp || (propertyDetails && (propertyDetails.bedrooms > 2 || propertyDetails.bathrooms > 1))) ? (
                             <>
                               {isOccupied && (
                                 <div className="flex justify-between items-center">
@@ -1721,6 +1778,26 @@ function BookingSystemContent() {
                                 <div className="flex justify-between items-center">
                                   <span className="text-gray-700">Final-Day Touch-Up</span>
                                   <span className="font-medium text-gray-800">${additionalServicePricing.finalDayTouchUp}</span>
+                                </div>
+                              )}
+                              {propertyDetails && propertyDetails.bedrooms > 2 && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-700">
+                                    Additional Bedrooms ({propertyDetails.bedrooms - 2} × $50)
+                                  </span>
+                                  <span className="font-medium text-gray-800">
+                                    ${(propertyDetails.bedrooms - 2) * 50}
+                                  </span>
+                                </div>
+                              )}
+                              {propertyDetails && propertyDetails.bathrooms > 1 && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-700">
+                                    Additional Bathrooms ({propertyDetails.bathrooms - 1} × $25)
+                                  </span>
+                                  <span className="font-medium text-gray-800">
+                                    ${(propertyDetails.bathrooms - 1) * 25}
+                                  </span>
                                 </div>
                               )}
                             </>
@@ -1866,6 +1943,8 @@ function BookingSystemContent() {
           lightStaging={lightStaging}
           scentBooster={scentBooster}
           finalDayTouchUp={finalDayTouchUp}
+          propertyDetails={propertyDetails || undefined}
+          propertyImages={propertyDetails?.propertyImages || []}
           paymentType={paymentType}
           additionalServicePricing={additionalServicePricing}
         />
