@@ -34,7 +34,7 @@ interface CleaningPackage {
   id: string
   name: string
   tier: "Basic" | "Concierge" | "Partner"
-  category: "Instant" | "Concierge" | "Partner" | "MoveInOut"
+  category: "Instant" | "Concierge" | "Partner" | "Moveinout"
   description: string
   whoFor: string
   timeEstimate: string
@@ -120,12 +120,12 @@ const packagesData: CleaningPackage[] = [
       "Photo-ready touches",
     ],
   },
-  // MoveInOut Packages
+  // Moveinout  Packages
   {
     id: "move-in-out-basic",
     name: "MoveInOut Basic",
     tier: "Basic",
-    category: "MoveInOut",
+    category: "Moveinout",
     description:
       "Essential cleaning service for move-in or move-out situations. Perfect for tenants, new homeowners, or anyone needing a thorough clean during transitions.",
     whoFor: "Tenants moving in/out, new homeowners, or anyone needing transition cleaning.",
@@ -144,7 +144,7 @@ const packagesData: CleaningPackage[] = [
     id: "move-in-out-standard",
     name: "MoveInOut Standard",
     tier: "Basic",
-    category: "MoveInOut",
+    category: "Moveinout",
     description:
       "Comprehensive move-in/move-out cleaning including appliances, cabinets, and detailed attention to all areas. Ideal for thorough property transitions.",
     whoFor: "Homeowners, landlords, or property managers needing detailed transition cleaning.",
@@ -163,7 +163,7 @@ const packagesData: CleaningPackage[] = [
     id: "move-in-out-premium",
     name: "MoveInOut Premium",
     tier: "Basic",
-    category: "MoveInOut",
+    category: "Moveinout",
     description:
       "Premium move-in/move-out service with extra attention to detail, including grout cleaning, appliance deep clean, and comprehensive property preparation.",
     whoFor: "Luxury properties, high-end rentals, or properties requiring meticulous attention to detail.",
@@ -182,7 +182,7 @@ const packagesData: CleaningPackage[] = [
     id: "move-in-out-complete",
     name: "MoveInOut Complete",
     tier: "Basic",
-    category: "MoveInOut",
+    category: "Moveinout",
     description:
       "Complete move-in/move-out service including all areas, appliances, storage spaces, and premium finishing touches for a truly move-ready property.",
     whoFor: "High-value properties, luxury rentals, or properties requiring the highest level of cleaning detail.",
@@ -394,7 +394,7 @@ function BookingSystemContent() {
   const [currentStage, setCurrentStage] = useState<"category" | "tiers" | "property-details" | "add-ons" | "schedule" | "contact" | "payment-type" | "review">(
     "category"
   )
-  const [selectedCategory, setSelectedCategory] = useState<"Instant" | "Concierge" | "Partner" | "MoveInOut" | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<"Instant" | "Concierge" | "Partner" | "Moveinout" | null>(null)
   const [selectedPackage, setSelectedPackage] = useState<CleaningPackage | null>(null)
   const [selectedAddOns, setSelectedAddOns] = useState<Set<string>>(new Set())
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
@@ -426,16 +426,16 @@ function BookingSystemContent() {
       const { type, email, id, categoryparam } = event.data;
   
       if (type === "userInfo") {
-        setContactData((prev: ContactFormData | null) => ({
-          ...prev,
+          setContactData((prev: ContactFormData | null) => ({
+            ...prev,
           email: email || prev?.email,
-          id: id || "",
-        }) as ContactFormData);
-        console.log("✅ Received user info:", { email, id });
-      }
+            id: id || "",
+          }) as ContactFormData);
+          console.log("✅ Received user info:", { email, id });
+        }
   
       if (type === "categoryInfo") {
-        setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" | "MoveInOut"); 
+        setSelectedCategory(categoryparam as "Instant" | "Concierge" | "Partner" | "Moveinout"); 
         if (categoryparam) setCurrentStage("tiers");
         console.log("✅ Received category info:", { categoryparam, currentStage ,selectedCategory});
       }
@@ -465,12 +465,12 @@ function BookingSystemContent() {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       const { type, email, message } = event.data;
-
+      
       if (type === "userLogin") {
         console.log("✅ Received login info:", { email, message });
-
-        setContactData((prev: ContactFormData | null) => ({
-          ...prev,
+        
+          setContactData((prev: ContactFormData | null) => ({
+            ...prev,
           email: email || prev?.email,
         }) as ContactFormData );
       }
@@ -478,22 +478,22 @@ function BookingSystemContent() {
       if (type === "userLoginFailed") {
         console.warn("⚠️ Login failed:", message);
       }
-
+  
       if (type === "loginRequested") {
         console.log("🔄 Login request acknowledged by Wix");
       }
     };
-
+  
     window.addEventListener("message", handleMessage);
 
     // 🔄 Poll every 10 seconds in case login info arrives later
     const interval = setInterval(() => {
-      console.log("⏳ Requesting user login info again...");
+        console.log("⏳ Requesting user login info again...");
       if (window.parent && window.parent !== window) {
         window.parent.postMessage({ type: "request-user-info" }, "*");
       }
     }, 10000);
-
+  
     return () => {
       window.removeEventListener("message", handleMessage);
       clearInterval(interval);
@@ -557,7 +557,7 @@ function BookingSystemContent() {
           setLightStaging(bookingData.lightStaging || false)
           setScentBooster(bookingData.scentBooster || false)
           setFinalDayTouchUp(bookingData.finalDayTouchUp || false)
-          setContactData(bookingData.contactData || null)
+            setContactData(bookingData.contactData || null)
           setPropertyDetails(bookingData.propertyDetails || null)
           setPaymentType(bookingData.paymentType || "oneTime")
         } else {
@@ -1047,7 +1047,7 @@ function BookingSystemContent() {
                     <ChevronLeft className="mr-2 h-4 w-4" /> Back
                   </Button>
                   <h2 className="text-3xl font-bold text-center text-gray-800 flex-grow">
-                    {selectedCategory} Packages
+                    {selectedCategory === "Moveinout" ? "Move-out / Move-in" : selectedCategory} Packages
                   </h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
