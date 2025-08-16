@@ -6,6 +6,9 @@ import { XCircle, Home, RefreshCw, Phone, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 
 export default function FailedPage() {
+  const handleHomeClick = () => {
+    window.parent.location.href = "https://www.topclassclean.com"
+  }
   return (
     <div className="min-h-screen bg-tc-light-blue py-12 px-3 sm:px-4 lg:px-8">
       <div className="max-w-2xl mx-auto">
@@ -79,10 +82,10 @@ export default function FailedPage() {
                   variant="outline" 
                   className="flex-1 border-tc-vibrant-blue text-tc-vibrant-blue hover:bg-tc-light-blue py-3 text-lg"
                 >
-                  <Link href="/">
+                  <Button onClick={() => handleHomeClick()}>
                     <Home className="mr-2 h-5 w-5" />
                     Return to Home
-                  </Link>
+                  </Button>
                 </Button>
               </div>
 
