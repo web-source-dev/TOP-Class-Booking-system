@@ -34,7 +34,7 @@ interface CleaningPackage {
   id: string
   name: string
   tier: "Basic" | "Concierge" | "Partner"
-  category: "Instant" | "Concierge" | "Partner" | "Moveinout "
+  category: "Instant" | "Concierge" | "Partner" | "Moveinout"
   description: string
   whoFor: string
   timeEstimate: string
@@ -125,7 +125,7 @@ const packagesData: CleaningPackage[] = [
     id: "move-in-out-basic",
     name: "MoveInOut Basic",
     tier: "Basic",
-    category: "Moveinout ",
+    category: "Moveinout",
     description:
       "Essential cleaning service for move-in or move-out situations. Perfect for tenants, new homeowners, or anyone needing a thorough clean during transitions.",
     whoFor: "Tenants moving in/out, new homeowners, or anyone needing transition cleaning.",
@@ -144,7 +144,7 @@ const packagesData: CleaningPackage[] = [
     id: "move-in-out-standard",
     name: "MoveInOut Standard",
     tier: "Basic",
-    category: "Moveinout ",
+    category: "Moveinout",
     description:
       "Comprehensive move-in/move-out cleaning including appliances, cabinets, and detailed attention to all areas. Ideal for thorough property transitions.",
     whoFor: "Homeowners, landlords, or property managers needing detailed transition cleaning.",
@@ -163,7 +163,7 @@ const packagesData: CleaningPackage[] = [
     id: "move-in-out-premium",
     name: "MoveInOut Premium",
     tier: "Basic",
-    category: "Moveinout ",
+    category: "Moveinout",
     description:
       "Premium move-in/move-out service with extra attention to detail, including grout cleaning, appliance deep clean, and comprehensive property preparation.",
     whoFor: "Luxury properties, high-end rentals, or properties requiring meticulous attention to detail.",
@@ -182,7 +182,7 @@ const packagesData: CleaningPackage[] = [
     id: "move-in-out-complete",
     name: "MoveInOut Complete",
     tier: "Basic",
-    category: "Moveinout ",
+    category: "Moveinout",
     description:
       "Complete move-in/move-out service including all areas, appliances, storage spaces, and premium finishing touches for a truly move-ready property.",
     whoFor: "High-value properties, luxury rentals, or properties requiring the highest level of cleaning detail.",
