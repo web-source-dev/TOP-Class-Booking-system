@@ -123,11 +123,10 @@ const packagesData: CleaningPackage[] = [
   // Moveinout  Packages
   {
     id: "move-in-out-basic",
-    name: "MoveInOut Basic",
+    name: "After-Move Reset",
     tier: "Basic",
     category: "Moveinout",
-    description:
-      "Essential cleaning service for move-in or move-out situations. Perfect for tenants, new homeowners, or anyone needing a thorough clean during transitions.",
+    description:"quick post-move clean-out to stabilize for key handoff.",
     whoFor: "Tenants moving in/out, new homeowners, or anyone needing transition cleaning.",
     timeEstimate: "3–4 hours, 1–2 cleaners",
     priceRange: "$249",
@@ -142,11 +141,11 @@ const packagesData: CleaningPackage[] = [
   },
   {
     id: "move-in-out-standard",
-    name: "MoveInOut Standard",
+    name: "Key-Ready Deep Clean",
     tier: "Basic",
     category: "Moveinout",
     description:
-      "Comprehensive move-in/move-out cleaning including appliances, cabinets, and detailed attention to all areas. Ideal for thorough property transitions.",
+      "full detail so the key exchange is smooth.",
     whoFor: "Homeowners, landlords, or property managers needing detailed transition cleaning.",
     timeEstimate: "4–6 hours, 2 cleaners",
     priceRange: "$349",
@@ -161,11 +160,11 @@ const packagesData: CleaningPackage[] = [
   },
   {
     id: "move-in-out-premium",
-    name: "MoveInOut Premium",
+    name: "Deposit Defender",
     tier: "Basic",
     category: "Moveinout",
     description:
-      "Premium move-in/move-out service with extra attention to detail, including grout cleaning, appliance deep clean, and comprehensive property preparation.",
+      "landlord/PM checklist finish (adds interiors & trim).",
     whoFor: "Luxury properties, high-end rentals, or properties requiring meticulous attention to detail.",
     timeEstimate: "6–8 hours, 2–3 cleaners",
     priceRange: "$499",
@@ -180,11 +179,11 @@ const packagesData: CleaningPackage[] = [
   },
   {
     id: "move-in-out-complete",
-    name: "MoveInOut Complete",
+    name: "Photo-Ready Finish",
     tier: "Basic",
     category: "Moveinout",
     description:
-      "Complete move-in/move-out service including all areas, appliances, storage spaces, and premium finishing touches for a truly move-ready property.",
+      "top-tier detail with photo proof for listings.",
     whoFor: "High-value properties, luxury rentals, or properties requiring the highest level of cleaning detail.",
     timeEstimate: "8+ hours, 3 cleaners",
     priceRange: "$699",

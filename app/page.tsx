@@ -52,21 +52,21 @@ export default function HomePage() {
         {/* Category Selection */}
         <div className="grid gap-8">
           <h2 className="text-3xl font-bold text-center text-gray-800">Choose Your Cleaning Category</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <CategoryCard
               name="Instant"
               description="Quick, thorough one-time cleans for immediate results."
               icon={Home}
               onSelect={() => handleCategorySelect("Instant")}
             />
-            <CategoryCard
+            {/* <CategoryCard
               name="Concierge"
               description="Premium, white-glove service for occupied or vacated homes."
               icon={Sparkles}
               onSelect={() => handleCategorySelect("Concierge")}
-            />
+            /> */}
             <CategoryCard
-              name="Partner"
+              name="Businesses and real estate professionals"
               description="Exclusive ongoing partnerships for real estate professionals."
               icon={Handshake}
               onSelect={() => handleCategorySelect("Partner")}
